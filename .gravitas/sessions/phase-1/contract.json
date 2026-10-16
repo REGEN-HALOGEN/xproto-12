@@ -1,0 +1,34 @@
+{
+  "mode": "implement",
+  "objective": "Phase 1: Replace regex-only planner with LLM planner (Ollama) while preserving regex as named control",
+  "acceptance_criteria": [
+    "Planner protocol accepts task text, available tools, delegation targets, principal-chain context, and instruction provenance",
+    "Planner returns validated decision types (tool_call, delegate, respond, refuse) rejecting malformed or extra actions",
+    "Current regex rules moved into RegexPlanner without silent fallback on LLM error",
+    "Ollama adapter implements configurable model name/digest, temperature, top-p, seed, timeout, max tokens, prompt template version",
+    "Input segments labeled by provenance (user_input, a2a_message, mcp_tool_result, delegated_response) with structured schemas",
+    "Planning events log raw response hash, normalized decision, model digest, sampling config, seed, duration, parser error, explicit fallback",
+    "Ten repeated LLM smoke runs finish with no hidden fallback",
+    "Designated variance scenario produces at least two distinct normalized traces or outcomes",
+    "Separate regex-control and LLM result sets emitted in evaluation",
+    "All unit and contract tests pass (test_planner_contract, test_ollama_parser, test_fallback, test_provenance_labels)"
+  ],
+  "non_goals": [
+    "Do not implement Phase 2 attestation or registry until Phase 1 is green",
+    "Do not remove regex planner (keep as explicit control baseline)"
+  ],
+  "risk": "medium",
+  "budget": "deep",
+  "allowed_write_scope": [
+    "src/xproto/config.py",
+    "src/xproto/victim.py",
+    "src/xproto/eval.py",
+    "src/xproto/planners/",
+    "scenarios/planner_smoke.json",
+    "tests/",
+    "requirements.txt",
+    "README.md",
+    ".gravitas/"
+  ],
+  "verification": "impact"
+}

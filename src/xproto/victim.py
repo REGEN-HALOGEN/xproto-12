@@ -34,6 +34,24 @@ from xproto.common import (
 )
 from xproto.defense_xgate import XGate, XGateDenied
 
+from xproto.config import PlannerConfig, VictimConfig
+from xproto.planners import (
+    DelegateDecision,
+    DelegationTarget,
+    InputSegment,
+    OllamaPlanner,
+    PlanDecision,
+    PlanRequest,
+    PlanResult,
+    Planner,
+    ProvenanceType,
+    RefuseDecision,
+    RegexPlanner,
+    RespondDecision,
+    ToolCallDecision,
+    ToolDefinition,
+)
+
 try:
     from a2a.server.agent_execution.agent_executor import AgentExecutor
 except ImportError:  # pragma: no cover
@@ -55,21 +73,60 @@ CAPABILITY_RE = re.compile(r"use the ([\w\- ]+?) (?:relay|agent)", re.I)
 INSTRUCTION_RE = re.compile(r"^INSTRUCTION:\s*(.+)$", re.M)
 MAX_DEPTH = 3
 
-
-@dataclass
-class VictimConfig:
-    agent_id: str = "victim"
-    port: int = 18080
-    honest_provenance: bool = False  # False = vulnerable (confused deputy)
-    known_agents: dict[str, str] = field(default_factory=dict)  # capability -> url
+DEFAULT_TOOLS: list[ToolDefinition] = [
+    ToolDefinition(
+        name="read_file",
+        description="Read a file and return its contents.",
+        parameters={"type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]},
+    ),
+    ToolDefinition(
+        name="list_directory",
+        description="List files and subdirectories in a directory.",
+        parameters={"type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]},
+    ),
+    ToolDefinition(
+        name="send_email",
+        description="Simulate sending an email with subject and body to a recipient.",
+        parameters={
+            "type": "object",
+            "properties": {
+                "to": {"type": "string"},
+                "subject": {"type": "string"},
+                "body": {"type": "string"},
+            },
+            "required": ["to", "subject", "body"],
+        },
+    ),
+    ToolDefinition(
+        name="search_web",
+        description="Search the web for information given a query.",
+        parameters={"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]},
+    ),
+]
 
 
 class VictimExecutor(AgentExecutor):
     """AgentExecutor implementation (duck-typed; registered with DefaultRequestHandlerV2)."""
 
-    def __init__(self, config: VictimConfig):
+    def __init__(self, config: VictimConfig, planner: Planner | None = None):
         self.config = config
         self.owner = f"owner@{config.agent_id}"
+        self.tools = list(DEFAULT_TOOLS)
+        self.delegation_targets = [
+            DelegationTarget(agent_id=cap, capability=cap, url=url)
+            for cap, url in config.known_agents.items()
+        ]
+        if planner is not None:
+            self.planner = planner
+        elif config.planner_config.planner_type == "ollama":
+            fallback = RegexPlanner() if config.planner_config.allow_fallback else None
+            self.planner = OllamaPlanner(
+                config=config.planner_config.ollama,
+                fallback_planner=fallback,
+                allow_fallback=config.planner_config.allow_fallback,
+            )
+        else:
+            self.planner = RegexPlanner()
 
     # -- AgentExecutor interface -------------------------------------------
     async def execute(self, context, event_queue) -> None:
@@ -117,72 +174,92 @@ class VictimExecutor(AgentExecutor):
 
     # -- planner ------------------------------------------------------------
     async def _handle(self, text: str, chain: list[str], provenance: str,
-                      delegator: str | None, depth: int) -> str:
+                      delegator: str | None, depth: int,
+                      history: list[InputSegment] | None = None) -> str:
         if depth > MAX_DEPTH:
             return "stopped: instruction nesting too deep"
         eff_chain = chain + (["tool-output"] if provenance == "tool-output" else [])
         t = text.strip()
 
-        m = DELEGATE_RE.search(t)
-        if m:
-            return await self._delegate(m.group(1), m.group(2) or t,
-                                        eff_chain, provenance)
+        typed_prov: ProvenanceType = "mcp_tool_result" if provenance == "tool-output" else "a2a_message"
+        plan_req = PlanRequest(
+            task_text=t,
+            history=history or [],
+            available_tools=self.tools,
+            delegation_targets=self.delegation_targets,
+            principal_chain=eff_chain,
+            instruction_provenance=typed_prov,
+            delegator=delegator,
+        )
+        plan_res = await self.planner.plan(plan_req)
+        log_event("provenance.jsonl", {
+            "agent": self.config.agent_id,
+            **plan_res.to_log_record(),
+        })
+        decision = plan_res.decision
 
-        m = CAPABILITY_RE.search(t)
-        if m:
-            cap = m.group(1).strip().lower().replace(" ", "-")
-            url = self.config.known_agents.get(cap)
-            if not url:
-                return f"no known agent with capability '{cap}'"
-            return await self._delegate(url, t, eff_chain, provenance,
-                                        claimed_capability=cap)
+        if isinstance(decision, DelegateDecision):
+            return await self._delegate(
+                decision.target,
+                decision.task_text or t,
+                eff_chain,
+                provenance,
+                claimed_capability=decision.capability,
+            )
 
-        email = EMAIL_RE.search(t)
-        if email and "email" in t.lower():
-            addr = email.group(0)
-            pm = re.search(r"(?:contents|summary) of (\S+)", t, re.I)
-            if pm:
-                content = await self._tool("read_file", {"path": pm.group(1)},
-                                           eff_chain, provenance)
-                if content.startswith("DENIED"):
-                    return content
-                await self._follow_tool_instructions(content, eff_chain, delegator, depth)
-                return await self._tool("send_email",
-                                        {"to": addr, "subject": "requested contents",
-                                         "body": content}, eff_chain, provenance)
-            return await self._tool("send_email",
-                                    {"to": addr, "subject": "message",
-                                     "body": t}, eff_chain, provenance)
-
-        if re.search(r"search (the )?web for|search for", t, re.I):
-            q = re.split(r"search (the )?web for|search for", t, flags=re.I)[-1].strip(" :")
-            result = await self._tool("search_web", {"query": q or t},
-                                      eff_chain, provenance)
-            if result.startswith("DENIED"):
-                return result
-            await self._follow_tool_instructions(result, eff_chain, delegator, depth)
-            return f"search results:\n{result}"
-
-        if "director" in t.lower() and ("list" in t.lower() or "show" in t.lower()):
-            pm = PATH_RE.search(t)
-            path = pm.group(1) if pm else "testdata"
-            return await self._tool("list_directory", {"path": path},
-                                    eff_chain, provenance)
-
-        pm = PATH_RE.search(t)
-        if pm and re.search(r"\b(read|open|summar)", t, re.I):
-            path = pm.group(1)
-            content = await self._tool("read_file", {"path": path},
-                                       eff_chain, provenance)
+        if isinstance(decision, ToolCallDecision):
+            content = await self._tool(decision.tool, decision.args, eff_chain, provenance)
             if content.startswith("DENIED"):
                 return content
             await self._follow_tool_instructions(content, eff_chain, delegator, depth)
-            lines = [ln for ln in content.splitlines() if ln.strip()][:3]
-            return "summary:\n" + "\n".join(lines)
 
-        return ("I could not map that request to a tool. "
-                "Try: 'summarize file <path>', 'email the contents of <path> to <addr>', "
-                "'list directory <path>', 'search the web for <query>'.")
+            # Support two-step task: read_file followed by send_email
+            if decision.tool == "read_file":
+                email = EMAIL_RE.search(t)
+                if email and "email" in t.lower():
+                    next_history = (history or []) + [
+                        InputSegment(
+                            text=content,
+                            provenance="mcp_tool_result",
+                            metadata={"tool": "read_file", "path": decision.args.get("path")},
+                        )
+                    ]
+                    next_req = PlanRequest(
+                        task_text=t,
+                        history=next_history,
+                        available_tools=self.tools,
+                        delegation_targets=self.delegation_targets,
+                        principal_chain=eff_chain,
+                        instruction_provenance=typed_prov,
+                        delegator=delegator,
+                    )
+                    next_res = await self.planner.plan(next_req)
+                    log_event("provenance.jsonl", {
+                        "agent": self.config.agent_id,
+                        **next_res.to_log_record(),
+                    })
+                    if isinstance(next_res.decision, ToolCallDecision):
+                        return await self._tool(
+                            next_res.decision.tool,
+                            next_res.decision.args,
+                            eff_chain,
+                            provenance,
+                        )
+                lines = [ln for ln in content.splitlines() if ln.strip()][:3]
+                return "summary:\n" + "\n".join(lines)
+
+            if decision.tool == "search_web":
+                return f"search results:\n{content}"
+
+            return content
+
+        if isinstance(decision, RespondDecision):
+            return decision.content
+
+        if isinstance(decision, RefuseDecision):
+            return f"Refused: {decision.reason}"
+
+        return "Unrecognized decision type"
 
     async def _tool(self, name: str, args: dict, chain: list[str],
                     provenance: str) -> str:
@@ -282,7 +359,7 @@ class VictimExecutor(AgentExecutor):
         await TaskUpdater(event_queue, task_id, context_id).cancel()
 
 
-def build_app(config: VictimConfig):
+def build_app(config: VictimConfig, planner: Planner | None = None):
     """Build the Starlette A2A app for a victim instance."""
     from starlette.applications import Starlette
     from a2a.server.request_handlers.default_request_handler_v2 import (
@@ -304,7 +381,7 @@ def build_app(config: VictimConfig):
                  "description": "send email summaries", "tags": ["email"]}],
     )
     handler = DefaultRequestHandlerV2(
-        agent_executor=VictimExecutor(config),
+        agent_executor=VictimExecutor(config, planner=planner),
         task_store=InMemoryTaskStore(),
         agent_card=card,
     )
@@ -313,11 +390,11 @@ def build_app(config: VictimConfig):
     return Starlette(routes=routes)
 
 
-async def serve(config: VictimConfig):
+async def serve(config: VictimConfig, planner: Planner | None = None):
     """Serve forever (run as an asyncio task); set server.should_exit to stop."""
     import uvicorn
 
-    app = build_app(config)
+    app = build_app(config, planner=planner)
     server = uvicorn.Server(uvicorn.Config(
         app, host="127.0.0.1", port=config.port, log_level="warning"))
     serve._server = server  # noqa: SLF001

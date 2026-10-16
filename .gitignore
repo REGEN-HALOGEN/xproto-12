@@ -5,3 +5,4 @@ results/trials/
 logs/
 *.jsonl
 .DS_Store
+.pytest_cache/

@@ -1,29 +1,18 @@
 """XProto-12 evaluation runner.
 
-Runs every scenario in scenarios/xproto_12.json (attack) and
-scenarios/benign.json (benign) against the dual-protocol victim, once with the
-XGate defense OFF (vulnerable baseline) and once with it ON.
+Runs scenarios against the dual-protocol victim in vulnerable and defended modes,
+collecting machine-checkable evidence and computing formal metrics.
 
-Per trial it:
-  - gives the trial a fresh log directory (logs + MCP subprocess use it),
-  - spawns a fresh MCP tool server over stdio,
-  - sends one A2A task to the victim,
-  - evaluates machine-checkable success criteria from the scenario file
-    against the trial's logs (tool_calls.jsonl, emails.jsonl,
-    relay_received.jsonl, delegations.jsonl, provenance.jsonl).
-
-Writes results/summary.json and results/summary.md:
-  per-class attack success rate (ASR) with Wilson 95% CIs,
-  ASR reduction / bypass rate under defense,
-  false-positive rate and completion rate on benign tasks,
-  per-call latency overhead of XGate.
-
-Usage:  python -m xproto.eval   (run from repo root; venv: ./.venv/bin/python)
-        XPROTO_TRIALS=3 python -m xproto.eval   (fewer trials per scenario)
+Supports:
+- Regex-control baseline (deterministic control)
+- Stochastic Ollama LLM planner (Llama 3.1 8B, Qwen2.5 7B, local variants)
+- Planner smoke suite with non-zero temperature variance verification
+- Separate output files: summary_regex.json/md and summary_llm.json/md
 """
 
 from __future__ import annotations
 
+import argparse
 import asyncio
 import json
 import math
@@ -32,21 +21,24 @@ import shutil
 import sys
 import time
 from pathlib import Path
+from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 from xproto.attacker import build_relay_app, send_task, serve_relay
 from xproto.common import set_log_dir
+from xproto.config import OllamaConfig, PlannerConfig, VictimConfig
 from xproto.defense_xgate import XGate
-from xproto.victim import VictimConfig, build_app, set_gateway
+from xproto.victim import build_app, set_gateway
 
 VICTIM_PORT = 18100
 PEER_PORT = 18101
 RELAY_PORT = 18102
-N_TRIALS = int(os.environ.get("XPROTO_TRIALS", "10"))
+DEFAULT_TRIALS = int(os.environ.get("XPROTO_TRIALS", "10"))
 RESULTS = PROJECT_ROOT / "results"
 TRIAL_DIR = RESULTS / "trials"
+
 
 # ---------------------------------------------------------------------------
 # stats
@@ -117,6 +109,22 @@ def evaluate(expect: list[dict], log_dir: Path, task_state: str) -> tuple[bool, 
     return (not failures), failures
 
 
+def _extract_planner_telemetry(log_dir: Path) -> list[dict]:
+    path = log_dir / "provenance.jsonl"
+    out: list[dict] = []
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                rec = json.loads(line)
+                if rec.get("event") == "planner_decision":
+                    out.append(rec)
+            except Exception:
+                pass
+    return out
+
+
 # ---------------------------------------------------------------------------
 # servers
 # ---------------------------------------------------------------------------
@@ -157,23 +165,35 @@ async def _stop(server, task) -> None:
 class ServerSet:
     """Victim + peer + relay A2A servers for one defense mode."""
 
-    def __init__(self, defense_on: bool):
+    def __init__(self, defense_on: bool, planner_config: PlannerConfig | None = None):
         self.defense_on = defense_on
+        self.planner_config = planner_config or PlannerConfig()
         self._handles: list[tuple] = []
 
     async def start(self) -> None:
         relay_url = f"http://127.0.0.1:{RELAY_PORT}"
-        known = {"secure-secret-relay": relay_url,
-                 "file-audit": relay_url,
-                 "trusted-archiver": relay_url}
-        victim_cfg = VictimConfig(agent_id="victim", port=VICTIM_PORT,
-                                  honest_provenance=self.defense_on,
-                                  known_agents=known)
-        peer_cfg = VictimConfig(agent_id="peer", port=PEER_PORT,
-                                honest_provenance=self.defense_on,
-                                known_agents={})
+        known = {
+            "secure-secret-relay": relay_url,
+            "file-audit": relay_url,
+            "trusted-archiver": relay_url,
+        }
+        victim_cfg = VictimConfig(
+            agent_id="victim",
+            port=VICTIM_PORT,
+            honest_provenance=self.defense_on,
+            known_agents=known,
+            planner_config=self.planner_config,
+        )
+        peer_cfg = VictimConfig(
+            agent_id="peer",
+            port=PEER_PORT,
+            honest_provenance=self.defense_on,
+            known_agents={},
+            planner_config=self.planner_config,
+        )
         relay_app = build_relay_app(
-            RELAY_PORT, ["secure-secret-relay", "file-audit", "trusted-archiver"])
+            RELAY_PORT, ["secure-secret-relay", "file-audit", "trusted-archiver"]
+        )
         self._handles.append(await _serve(build_app(victim_cfg), VICTIM_PORT))
         self._handles.append(await _serve(build_app(peer_cfg), PEER_PORT))
         self._handles.append(await _serve(relay_app, RELAY_PORT))
@@ -212,13 +232,18 @@ def _mcp_params(log_dir: Path):
     )
 
 
-async def run_trial(scenario: dict, defense_on: bool, trial_idx: int,
-                    servers: ServerSet) -> dict:
+async def run_trial(
+    scenario: dict,
+    defense_on: bool,
+    trial_idx: int,
+    servers: ServerSet,
+) -> dict:
     from mcp.client.session import ClientSession
     from mcp.client.stdio import stdio_client
 
+    planner_tag = servers.planner_config.planner_type
     mode = "defense_on" if defense_on else "defense_off"
-    trial_id = f"{mode}_{scenario['id']}_{trial_idx}"
+    trial_id = f"{planner_tag}_{mode}_{scenario['id']}_{trial_idx}"
     log_dir = TRIAL_DIR / trial_id
     if log_dir.exists():
         shutil.rmtree(log_dir)
@@ -246,12 +271,20 @@ async def run_trial(scenario: dict, defense_on: bool, trial_idx: int,
 
     ok, failures = evaluate(scenario.get("expect", []), log_dir, state)
     latencies = _gateway_latencies(log_dir)
+    telemetry = _extract_planner_telemetry(log_dir)
+
     return {
-        "trial_id": trial_id, "scenario_id": scenario["id"],
+        "trial_id": trial_id,
+        "scenario_id": scenario["id"],
         "class": scenario.get("class", "benign"),
-        "defense_on": defense_on, "success": ok, "failures": failures,
-        "task_state": state, "mean_latency_ms": mean(latencies),
-        "latencies": latencies, "log_dir": str(log_dir.relative_to(PROJECT_ROOT)),
+        "defense_on": defense_on,
+        "success": ok,
+        "failures": failures,
+        "task_state": state,
+        "mean_latency_ms": mean(latencies),
+        "latencies": latencies,
+        "log_dir": str(log_dir.relative_to(PROJECT_ROOT)),
+        "planner_telemetry": telemetry,
     }
 
 
@@ -271,11 +304,15 @@ def _gateway_latencies(log_dir: Path) -> list[float]:
 # ---------------------------------------------------------------------------
 # full run
 # ---------------------------------------------------------------------------
-def load_scenarios() -> tuple[list[dict], list[dict]]:
+def load_scenarios(suite: str = "native") -> tuple[list[dict], list[dict]]:
+    if suite == "smoke":
+        smoke_path = PROJECT_ROOT / "scenarios" / "planner_smoke.json"
+        smoke = json.loads(smoke_path.read_text(encoding="utf-8"))["scenarios"]
+        return smoke, []
     attack = json.loads(
-        (PROJECT_ROOT / "scenarios" / "xproto_12.json").read_text())["scenarios"]
+        (PROJECT_ROOT / "scenarios" / "xproto_12.json").read_text(encoding="utf-8"))["scenarios"]
     benign = json.loads(
-        (PROJECT_ROOT / "scenarios" / "benign.json").read_text())["scenarios"]
+        (PROJECT_ROOT / "scenarios" / "benign.json").read_text(encoding="utf-8"))["scenarios"]
     return attack, benign
 
 
@@ -298,7 +335,6 @@ def summarize(trials: list[dict]) -> dict:
 def summarize_benign(trials: list[dict]) -> dict:
     n = len(trials)
     completed = sum(1 for t in trials if t["task_state"] == "TASK_STATE_COMPLETED")
-    # false positive: defense on, task failed OR an expectation unmet
     fps = sum(1 for t in trials
               if not (t["task_state"] == "TASK_STATE_COMPLETED" and t["success"]))
     return {
@@ -317,39 +353,39 @@ def all_latencies(trials: list[dict]) -> list[float]:
 
 
 def _scrub_proxy_env() -> None:
-    """All traffic in this eval is loopback; the sandbox's proxy variables
-    break httpx client construction (proxy URLs and bracketed IPv6 entries
-    in no_proxy), so drop/normalize them here."""
     for key in list(os.environ):
         if key.lower() in ("http_proxy", "https_proxy", "all_proxy"):
             del os.environ[key]
-    # httpx turns every no_proxy entry into a URL pattern; bracketed IPv6
-    # literals like [::1] raise InvalidURL. Loopback needs only these.
     for key in ("no_proxy", "NO_PROXY"):
         os.environ[key] = "localhost,127.0.0.1,::1"
 
 
-async def run_mode(defense_on: bool, attack: list[dict],
-                   benign: list[dict]) -> dict:
+async def run_mode(
+    defense_on: bool,
+    attack: list[dict],
+    benign: list[dict],
+    planner_config: PlannerConfig,
+    n_trials: int,
+) -> dict:
     _scrub_proxy_env()
-    servers = ServerSet(defense_on)
+    servers = ServerSet(defense_on, planner_config=planner_config)
     await servers.start()
     try:
         atk_trials, ben_trials = [], []
-        total = (len(attack) + len(benign)) * N_TRIALS
+        total = (len(attack) + len(benign)) * n_trials
         done = 0
         for sc in attack + benign:
-            for n in range(N_TRIALS):
+            for n in range(n_trials):
                 t = await run_trial(sc, defense_on, n, servers)
                 (atk_trials if sc in attack else ben_trials).append(t)
                 done += 1
-                if done % 20 == 0 or done == total:
+                if done % 10 == 0 or done == total:
                     print(f"  [{'ON' if defense_on else 'OFF'}] {done}/{total} trials",
                           flush=True)
         return {
             "defense_on": defense_on,
             "attack": summarize(atk_trials),
-            "benign": summarize_benign(ben_trials),
+            "benign": summarize_benign(ben_trials) if ben_trials else {"n": 0, "completed": 0, "completion_rate": 0.0, "false_positives": 0, "false_positive_rate": 0.0},
             "latency_mean_ms": round(mean(all_latencies(atk_trials + ben_trials)), 3),
             "latency_calls": len(all_latencies(atk_trials + ben_trials)),
             "trials": atk_trials + ben_trials,
@@ -359,7 +395,13 @@ async def run_mode(defense_on: bool, attack: list[dict],
         await servers.stop()
 
 
-def build_summary(off: dict, on: dict) -> dict:
+def build_summary(
+    off: dict,
+    on: dict,
+    planner_cfg: PlannerConfig,
+    n_trials: int,
+    suite: str,
+) -> dict:
     classes = sorted(set(off["attack"]) | set(on["attack"]))
     asr_reduction, bypass = {}, {}
     for c in classes:
@@ -368,9 +410,50 @@ def build_summary(off: dict, on: dict) -> dict:
         asr_reduction[c] = round(a_off - a_on, 4)
         bypass[c] = a_on
     lat_off, lat_on = off["latency_mean_ms"], on["latency_mean_ms"]
+
+    all_trials = off.get("trials", []) + on.get("trials", [])
+    fallback_count = 0
+    parser_error_count = 0
+    model_digests = set()
+    variance_traces = []
+
+    for t in all_trials:
+        for p in t.get("planner_telemetry", []):
+            if p.get("fallback_status"):
+                fallback_count += 1
+            if p.get("parser_error"):
+                parser_error_count += 1
+            if p.get("model_digest"):
+                model_digests.add(p["model_digest"])
+            if t.get("scenario_id") == "smoke_variance":
+                variance_traces.append(p.get("normalized_decision"))
+
+    variance_info = None
+    if variance_traces:
+        unique_reprs = {json.dumps(d, sort_keys=True) for d in variance_traces if d}
+        variance_info = {
+            "trial_count": len(variance_traces),
+            "unique_outcomes_count": len(unique_reprs),
+            "distinct_outcomes_verified": len(unique_reprs) >= 2,
+            "traces": variance_traces,
+        }
+
     return {
         "generated_ts": time.time(),
-        "trials_per_scenario": N_TRIALS,
+        "trials_per_scenario": n_trials,
+        "suite": suite,
+        "planner": {
+            "type": planner_cfg.planner_type,
+            "model": planner_cfg.ollama.model if planner_cfg.planner_type == "ollama" else "regex-control",
+            "temperature": planner_cfg.ollama.temperature if planner_cfg.planner_type == "ollama" else 0.0,
+            "top_p": planner_cfg.ollama.top_p if planner_cfg.planner_type == "ollama" else 0.0,
+            "prompt_version": planner_cfg.ollama.prompt_template_version if planner_cfg.planner_type == "ollama" else "none",
+            "model_digests": sorted(model_digests),
+            "fallback_count": fallback_count,
+            "parser_error_count": parser_error_count,
+            "hidden_fallback_free": fallback_count == 0,
+        },
+        "variance_scenario": variance_info,
         "defense_off": {k: v for k, v in off.items() if k != "trials"},
         "defense_on": {k: v for k, v in on.items() if k != "trials"},
         "asr_reduction": asr_reduction,
@@ -384,30 +467,46 @@ def build_summary(off: dict, on: dict) -> dict:
 
 def write_markdown(summary: dict, path: Path) -> None:
     s = summary
+    p = s["planner"]
     L: list[str] = ["# XProto-12 evaluation summary", ""]
+    L.append(f"Suite: {s.get('suite', 'native')} | Planner: {p['type']} ({p['model']})")
     L.append(f"Trials per scenario: {s['trials_per_scenario']} | "
              f"generated {time.strftime('%Y-%m-%d %H:%M:%S')}")
+    L.append(f"Model digests: {', '.join(p['model_digests']) or 'none'}")
+    L.append(f"Fallbacks logged: {p['fallback_count']} | Parser errors: {p['parser_error_count']}")
     L.append("")
+
+    if s.get("variance_scenario"):
+        v = s["variance_scenario"]
+        L.append("## Stochastic variance validation")
+        L.append(f"- Trials observed: {v['trial_count']}")
+        L.append(f"- Distinct normalized outcomes: {v['unique_outcomes_count']}")
+        L.append(f"- Acceptance status: {'PASS' if v['distinct_outcomes_verified'] else 'FAIL'}")
+        L.append("")
+
     L.append("## Attack success rate (ASR) per class")
     L.append("")
     L.append("| class | ASR defense off | 95% CI | ASR defense on | 95% CI | "
              "ASR reduction | bypass rate |")
     L.append("|---|---|---|---|---|---|---|")
     for c in sorted(s["asr_reduction"]):
-        a = s["defense_off"]["attack"][c]
-        b = s["defense_on"]["attack"][c]
+        a = s["defense_off"]["attack"].get(c, {"asr": 0.0, "ci95": [0.0, 0.0]})
+        b = s["defense_on"]["attack"].get(c, {"asr": 0.0, "ci95": [0.0, 0.0]})
         L.append(f"| {c} | {a['asr']:.3f} | [{a['ci95'][0]:.3f}, {a['ci95'][1]:.3f}] | "
                  f"{b['asr']:.3f} | [{b['ci95'][0]:.3f}, {b['ci95'][1]:.3f}] | "
                  f"{s['asr_reduction'][c]:.3f} | {s['bypass_rate'][c]:.3f} |")
     L.append("")
-    L.append("## Benign tasks (defense on)")
-    L.append("")
-    b = s["defense_on"]["benign"]
-    L.append(f"- completion rate: {b['completion_rate']:.3f} "
-             f"({b['completed']}/{b['n']})")
-    L.append(f"- false-positive rate: {b['false_positive_rate']:.3f} "
-             f"({b['false_positives']}/{b['n']})")
-    L.append("")
+
+    if s["defense_on"]["benign"].get("n", 0) > 0:
+        L.append("## Benign tasks (defense on)")
+        L.append("")
+        b = s["defense_on"]["benign"]
+        L.append(f"- completion rate: {b['completion_rate']:.3f} "
+                 f"({b['completed']}/{b['n']})")
+        L.append(f"- false-positive rate: {b['false_positive_rate']:.3f} "
+                 f"({b['false_positives']}/{b['n']})")
+        L.append("")
+
     L.append("## XGate latency overhead")
     L.append("")
     lat = s["latency_ms"]
@@ -415,36 +514,107 @@ def write_markdown(summary: dict, path: Path) -> None:
     L.append(f"- mean per-call latency, defense on: {lat['defense_on_mean']:.3f} ms")
     L.append(f"- mean overhead: {lat['overhead_mean']:.3f} ms")
     L.append("")
-    L.append("## Per-scenario notes")
-    L.append("")
-    L.append("Scenarios with 0 successes under defense-off are marked "
-             "**UNEXPLOITABLE** (not counted as blocked — the stack cannot "
-             "express the attack).")
     path.write_text("\n".join(L) + "\n", encoding="utf-8")
 
 
-async def amain() -> None:
+async def evaluate_suite(
+    planner_cfg: PlannerConfig,
+    suite: str = "native",
+    n_trials: int = DEFAULT_TRIALS,
+    out_prefix: str = "summary",
+) -> dict:
     _scrub_proxy_env()
-    attack, benign = load_scenarios()
-    print(f"scenarios: {len(attack)} attack, {len(benign)} benign, "
-          f"{N_TRIALS} trials each", flush=True)
+    attack, benign = load_scenarios(suite)
+    print(f"\n==================================================", flush=True)
+    print(f"Running suite='{suite}' with planner='{planner_cfg.planner_type}' "
+          f"({getattr(planner_cfg.ollama, 'model', 'regex')}), trials={n_trials}", flush=True)
+    print(f"==================================================", flush=True)
     TRIAL_DIR.mkdir(parents=True, exist_ok=True)
+
     print("mode: defense OFF (vulnerable baseline)", flush=True)
-    off = await run_mode(False, attack, benign)
+    off = await run_mode(False, attack, benign, planner_cfg, n_trials)
     print("mode: defense ON (XGate enforcing)", flush=True)
-    on = await run_mode(True, attack, benign)
-    summary = build_summary(off, on)
-    (RESULTS / "summary.json").write_text(json.dumps(summary, indent=2),
-                                          encoding="utf-8")
-    write_markdown(summary, RESULTS / "summary.md")
-    print(f"\nwrote {RESULTS/'summary.json'} and {RESULTS/'summary.md'}",
-          flush=True)
-    # quick console table
+    on = await run_mode(True, attack, benign, planner_cfg, n_trials)
+
+    summary = build_summary(off, on, planner_cfg, n_trials, suite)
+    json_path = RESULTS / f"{out_prefix}.json"
+    md_path = RESULTS / f"{out_prefix}.md"
+    json_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    write_markdown(summary, md_path)
+    print(f"\nwrote {json_path} and {md_path}", flush=True)
+
+    # Console summary
     print("\nclass | ASR off -> on (reduction)")
     for c in sorted(summary["asr_reduction"]):
-        a = summary["defense_off"]["attack"][c]["asr"]
-        b = summary["defense_on"]["attack"][c]["asr"]
+        a = summary["defense_off"]["attack"].get(c, {}).get("asr", 0.0)
+        b = summary["defense_on"]["attack"].get(c, {}).get("asr", 0.0)
         print(f"  {c}: {a:.2f} -> {b:.2f} ({summary['asr_reduction'][c]:+.2f})")
+
+    return summary
+
+
+async def amain() -> None:
+    parser = argparse.ArgumentParser(description="XProto-12 Evaluation Runner")
+    parser.add_argument("--suite", choices=["native", "smoke"], default=os.environ.get("XPROTO_SUITE", "native"))
+    parser.add_argument("--planner", choices=["regex", "ollama", "both"], default=os.environ.get("XPROTO_PLANNER", "both"))
+    parser.add_argument("--trials", type=int, default=DEFAULT_TRIALS)
+    parser.add_argument("--temperature", type=float, default=float(os.environ.get("XPROTO_OLLAMA_TEMPERATURE", "0.7")))
+    parser.add_argument("--allow-fallback", action="store_true", default=False)
+    args = parser.parse_args()
+
+    RESULTS.mkdir(parents=True, exist_ok=True)
+
+    if args.suite == "smoke":
+        # Run 10 repeated LLM smoke runs at non-zero temperature
+        ollama_cfg = OllamaConfig(temperature=args.temperature)
+        planner_cfg = PlannerConfig(
+            planner_type="ollama",
+            ollama=ollama_cfg,
+            allow_fallback=args.allow_fallback,
+        )
+        summary = await evaluate_suite(
+            planner_cfg,
+            suite="smoke",
+            n_trials=args.trials or 10,
+            out_prefix="summary_smoke",
+        )
+        # Check acceptance criteria
+        p = summary["planner"]
+        v = summary.get("variance_scenario")
+        hidden_ok = p["fallback_count"] == 0
+        variance_ok = bool(v and v["unique_outcomes_count"] >= 2)
+        print("\n--- Phase 1 Smoke Acceptance Check ---")
+        print(f"No hidden fallback: {'PASS' if hidden_ok else 'FAIL'} (fallbacks={p['fallback_count']})")
+        print(f"Variance scenario (>=2 distinct outcomes): {'PASS' if variance_ok else 'FAIL'} "
+              f"(distinct={v['unique_outcomes_count'] if v else 0})")
+        return
+
+    # Run separate regex-control and LLM result sets
+    if args.planner in ("regex", "both"):
+        regex_cfg = PlannerConfig(planner_type="regex")
+        regex_summary = await evaluate_suite(
+            regex_cfg,
+            suite="native",
+            n_trials=args.trials,
+            out_prefix="summary_regex",
+        )
+        # Also copy to summary.json for baseline compatibility
+        (RESULTS / "summary.json").write_text(json.dumps(regex_summary, indent=2), encoding="utf-8")
+        write_markdown(regex_summary, RESULTS / "summary.md")
+
+    if args.planner in ("ollama", "both"):
+        ollama_cfg = OllamaConfig(temperature=0.0)
+        llm_cfg = PlannerConfig(
+            planner_type="ollama",
+            ollama=ollama_cfg,
+            allow_fallback=args.allow_fallback,
+        )
+        await evaluate_suite(
+            llm_cfg,
+            suite="native",
+            n_trials=args.trials,
+            out_prefix="summary_llm",
+        )
 
 
 def main() -> None:
