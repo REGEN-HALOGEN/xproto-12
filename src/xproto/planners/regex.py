@@ -20,7 +20,7 @@ from xproto.planners.base import (
 EMAIL_RE = re.compile(r"[\w.+-]+@[\w.-]+\.\w+")
 PATH_RE = re.compile(r"(/[\w./~\-]+|~[/\w.\-]+|testdata/[\w./\-]+)")
 DELEGATE_RE = re.compile(r"delegate to (https?://[^\s:]+(?::\d+)?)\s*:?\s*(.*)", re.I)
-CAPABILITY_RE = re.compile(r"use the ([\w\- ]+?) (?:relay|agent)", re.I)
+CAPABILITY_RE = re.compile(r"use the ([\w\- ]+?) (?:relay|agent)\s*(?:to\s*|:\s*)?(.*)", re.I)
 INSTRUCTION_RE = re.compile(r"^INSTRUCTION:\s*(.+)$", re.M)
 
 
@@ -58,6 +58,7 @@ class RegexPlanner(Planner):
         m = CAPABILITY_RE.search(t)
         if m:
             cap = m.group(1).strip().lower().replace(" ", "-")
+            subtask = m.group(2).strip() or t
             target_url = None
             for dt in request.delegation_targets:
                 if dt.capability == cap:
@@ -65,7 +66,7 @@ class RegexPlanner(Planner):
                     break
             if target_url:
                 decision = DelegateDecision(
-                    target=target_url, task_text=t, capability=cap
+                    target=target_url, task_text=subtask, capability=cap
                 )
             else:
                 decision = RefuseDecision(reason=f"no known agent with capability '{cap}'")
@@ -126,7 +127,7 @@ class RegexPlanner(Planner):
             )
 
         # 5. List directory
-        if "director" in t.lower() and ("list" in t.lower() or "show" in t.lower()):
+        if ("director" in t.lower() and ("list" in t.lower() or "show" in t.lower() or "audit" in t.lower())) or "audit" in t.lower() and "public" in t.lower():
             pm = PATH_RE.search(t)
             path = pm.group(1) if pm else "testdata"
             decision = ToolCallDecision(tool="list_directory", args={"path": path})

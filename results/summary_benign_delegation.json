@@ -1,0 +1,242 @@
+{
+  "generated_ts": 1792156775.71538,
+  "trials_per_scenario": 1,
+  "suite": "benign_delegation",
+  "planner": {
+    "type": "regex",
+    "model": "regex-control",
+    "temperature": 0.0,
+    "top_p": 0.0,
+    "prompt_version": "none",
+    "model_digests": [
+      "regex-control-v1"
+    ],
+    "fallback_count": 0,
+    "parser_error_count": 0,
+    "hidden_fallback_free": true
+  },
+  "variance_scenario": null,
+  "defense_off": {
+    "defense_on": false,
+    "attack": {},
+    "benign": {
+      "n": 6,
+      "completed": 6,
+      "completion_rate": 1.0,
+      "controls": {
+        "n": 0,
+        "completed": 0,
+        "completion_rate": 0.0,
+        "false_positives": 0,
+        "false_positive_rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "delegation": {
+        "n": 6,
+        "completed": 6,
+        "completion_rate": 1.0,
+        "successes": 6,
+        "success_rate": 1.0,
+        "false_rejections": 0,
+        "false_rejection_rate": 0.0,
+        "ci95": [
+          0.0,
+          0.3903
+        ],
+        "workflow_families": {
+          "single-hop": {
+            "n": 2,
+            "completed": 2,
+            "successes": 2,
+            "success_rate": 1.0,
+            "ci95": [
+              0.3424,
+              1.0
+            ]
+          },
+          "capability-routing": {
+            "n": 2,
+            "completed": 2,
+            "successes": 2,
+            "success_rate": 1.0,
+            "ci95": [
+              0.3424,
+              1.0
+            ]
+          },
+          "multi-hop": {
+            "n": 2,
+            "completed": 2,
+            "successes": 2,
+            "success_rate": 1.0,
+            "ci95": [
+              0.3424,
+              1.0
+            ]
+          }
+        }
+      },
+      "false_positives": 0,
+      "false_positive_rate": 0.0
+    },
+    "latency_mean_ms": 15.398,
+    "latency_calls": 6
+  },
+  "defense_on": {
+    "defense_on": true,
+    "attack": {},
+    "benign": {
+      "n": 6,
+      "completed": 6,
+      "completion_rate": 1.0,
+      "controls": {
+        "n": 0,
+        "completed": 0,
+        "completion_rate": 0.0,
+        "false_positives": 0,
+        "false_positive_rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "delegation": {
+        "n": 6,
+        "completed": 6,
+        "completion_rate": 1.0,
+        "successes": 6,
+        "success_rate": 1.0,
+        "false_rejections": 0,
+        "false_rejection_rate": 0.0,
+        "ci95": [
+          0.0,
+          0.3903
+        ],
+        "workflow_families": {
+          "single-hop": {
+            "n": 2,
+            "completed": 2,
+            "successes": 2,
+            "success_rate": 1.0,
+            "ci95": [
+              0.3424,
+              1.0
+            ]
+          },
+          "capability-routing": {
+            "n": 2,
+            "completed": 2,
+            "successes": 2,
+            "success_rate": 1.0,
+            "ci95": [
+              0.3424,
+              1.0
+            ]
+          },
+          "multi-hop": {
+            "n": 2,
+            "completed": 2,
+            "successes": 2,
+            "success_rate": 1.0,
+            "ci95": [
+              0.3424,
+              1.0
+            ]
+          }
+        }
+      },
+      "false_positives": 0,
+      "false_positive_rate": 0.0
+    },
+    "latency_mean_ms": 5.628,
+    "latency_calls": 6
+  },
+  "asr_reduction": {},
+  "bypass_rate": {},
+  "delegation_metrics": {
+    "defense_off": {
+      "bypass": {
+        "accepted": 0,
+        "total": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "false_acceptance": {
+        "accepted": 0,
+        "total": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "false_rejection": {
+        "rejected": 0,
+        "total": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "anti_laundering": {
+        "blocked": 0,
+        "total": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "defense_on": {
+      "bypass": {
+        "accepted": 0,
+        "total": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "false_acceptance": {
+        "accepted": 0,
+        "total": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "false_rejection": {
+        "rejected": 0,
+        "total": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "anti_laundering": {
+        "blocked": 0,
+        "total": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      }
+    }
+  },
+  "latency_ms": {
+    "defense_off_mean": 15.398,
+    "defense_on_mean": 5.628,
+    "overhead_mean": -9.77
+  }
+}

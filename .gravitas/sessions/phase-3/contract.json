@@ -1,0 +1,29 @@
+{
+  "mode": "implement",
+  "objective": "Phase 3: Add benign delegation workflows across single-hop, multi-hop, and capability routing with full effect verification",
+  "acceptance_criteria": [
+    "At least six benign delegation scenarios in scenarios/benign_delegation.json covering single-hop public-file summarization, capability-based routing to attested peer, two-hop trusted workflow preserving full chain, and legitimate peer response containing untrusted data without executable instruction",
+    "Every defended success verified by: allowed delegation record in delegations.jsonl, intended peer action, intended final effect, and completed task state",
+    "Preserve owner-only tool calls in scenarios/benign.json as non-delegating controls",
+    "Compute delegation false rejections using the delegation-aware suite denominator, distinct from non-delegating task completion",
+    "Evaluation reports break out results by workflow family: single-hop, multi-hop, and capability-routing",
+    "All unit and integration tests in tests/test_benign_delegation.py pass"
+  ],
+  "non_goals": [
+    "Do not implement Phase 4 secret portability or OS-independence yet",
+    "Do not weaken XGate weakest-link semantics or anti-laundering rules"
+  ],
+  "risk": "medium",
+  "budget": "deep",
+  "allowed_write_scope": [
+    "scenarios/benign_delegation.json",
+    "scenarios/benign.json",
+    "src/xproto/eval.py",
+    "src/xproto/victim.py",
+    "src/xproto/planners/regex.py",
+    "tests/test_benign_delegation.py",
+    "config/agents.json",
+    ".gravitas/"
+  ],
+  "verification": "impact"
+}

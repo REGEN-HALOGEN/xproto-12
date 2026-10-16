@@ -1,5 +1,5 @@
 {
-  "generated_ts": 1792156036.9473681,
+  "generated_ts": 1792156887.4287274,
   "trials_per_scenario": 1,
   "suite": "native",
   "planner": {
@@ -63,11 +63,11 @@
       },
       "D-unattested-agent-card": {
         "n": 3,
-        "successes": 3,
-        "asr": 1.0,
+        "successes": 2,
+        "asr": 0.6667,
         "ci95": [
-          0.4385,
-          1.0
+          0.2077,
+          0.9385
         ],
         "scenarios": [
           "d1",
@@ -77,14 +77,70 @@
       }
     },
     "benign": {
-      "n": 4,
-      "completed": 4,
+      "n": 10,
+      "completed": 10,
       "completion_rate": 1.0,
+      "controls": {
+        "n": 4,
+        "completed": 4,
+        "completion_rate": 1.0,
+        "false_positives": 0,
+        "false_positive_rate": 0.0,
+        "ci95": [
+          0.0,
+          0.4899
+        ]
+      },
+      "delegation": {
+        "n": 6,
+        "completed": 6,
+        "completion_rate": 1.0,
+        "successes": 6,
+        "success_rate": 1.0,
+        "false_rejections": 0,
+        "false_rejection_rate": 0.0,
+        "ci95": [
+          0.0,
+          0.3903
+        ],
+        "workflow_families": {
+          "single-hop": {
+            "n": 2,
+            "completed": 2,
+            "successes": 2,
+            "success_rate": 1.0,
+            "ci95": [
+              0.3424,
+              1.0
+            ]
+          },
+          "capability-routing": {
+            "n": 2,
+            "completed": 2,
+            "successes": 2,
+            "success_rate": 1.0,
+            "ci95": [
+              0.3424,
+              1.0
+            ]
+          },
+          "multi-hop": {
+            "n": 2,
+            "completed": 2,
+            "successes": 2,
+            "success_rate": 1.0,
+            "ci95": [
+              0.3424,
+              1.0
+            ]
+          }
+        }
+      },
       "false_positives": 0,
       "false_positive_rate": 0.0
     },
-    "latency_mean_ms": 10.214,
-    "latency_calls": 19
+    "latency_mean_ms": 8.404,
+    "latency_calls": 25
   },
   "defense_on": {
     "defense_on": true,
@@ -147,20 +203,76 @@
       }
     },
     "benign": {
-      "n": 4,
-      "completed": 4,
+      "n": 10,
+      "completed": 10,
       "completion_rate": 1.0,
+      "controls": {
+        "n": 4,
+        "completed": 4,
+        "completion_rate": 1.0,
+        "false_positives": 0,
+        "false_positive_rate": 0.0,
+        "ci95": [
+          0.0,
+          0.4899
+        ]
+      },
+      "delegation": {
+        "n": 6,
+        "completed": 6,
+        "completion_rate": 1.0,
+        "successes": 6,
+        "success_rate": 1.0,
+        "false_rejections": 0,
+        "false_rejection_rate": 0.0,
+        "ci95": [
+          0.0,
+          0.3903
+        ],
+        "workflow_families": {
+          "single-hop": {
+            "n": 2,
+            "completed": 2,
+            "successes": 2,
+            "success_rate": 1.0,
+            "ci95": [
+              0.3424,
+              1.0
+            ]
+          },
+          "capability-routing": {
+            "n": 2,
+            "completed": 2,
+            "successes": 2,
+            "success_rate": 1.0,
+            "ci95": [
+              0.3424,
+              1.0
+            ]
+          },
+          "multi-hop": {
+            "n": 2,
+            "completed": 2,
+            "successes": 2,
+            "success_rate": 1.0,
+            "ci95": [
+              0.3424,
+              1.0
+            ]
+          }
+        }
+      },
       "false_positives": 0,
       "false_positive_rate": 0.0
     },
-    "latency_mean_ms": 5.579,
-    "latency_calls": 8
+    "latency_mean_ms": 7.629,
+    "latency_calls": 14
   },
   "asr_reduction": {
     "A-delegation-to-tool": 0.6667,
     "B-tool-to-delegation": 1.0,
     "C-multi-hop-identity-loss": 0.6667,
-    "D-unattested-agent-card": 1.0
+    "D-unattested-agent-card": 0.6667
   },
   "bypass_rate": {
     "A-delegation-to-tool": 0.0,
@@ -171,11 +283,11 @@
   "delegation_metrics": {
     "defense_off": {
       "bypass": {
-        "accepted": 4,
-        "total": 4,
+        "accepted": 3,
+        "total": 3,
         "rate": 1.0,
         "ci95": [
-          0.5101,
+          0.4385,
           1.0
         ]
       },
@@ -210,11 +322,11 @@
     "defense_on": {
       "bypass": {
         "accepted": 0,
-        "total": 4,
+        "total": 3,
         "rate": 0.0,
         "ci95": [
           0.0,
-          0.4899
+          0.5615
         ]
       },
       "false_acceptance": {
@@ -247,8 +359,8 @@
     }
   },
   "latency_ms": {
-    "defense_off_mean": 10.214,
-    "defense_on_mean": 5.579,
-    "overhead_mean": -4.635
+    "defense_off_mean": 8.404,
+    "defense_on_mean": 7.629,
+    "overhead_mean": -0.775
   }
 }
