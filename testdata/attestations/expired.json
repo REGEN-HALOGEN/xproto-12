@@ -1,0 +1,14 @@
+{
+  "agent_id": "expired-peer",
+  "endpoint": "http://127.0.0.1:18101",
+  "capabilities": [
+    "file-audit"
+  ],
+  "issuer": "xproto-lab-ca",
+  "audience": "xproto-victim",
+  "valid_from": 1792147283.2342002,
+  "valid_until": 1792150883.2342002,
+  "public_key_id": "key-lab-ca-1",
+  "signature": "29ddc7c91ce2d81455ec2b3c3c4cbb399c0e8ba674f314116d2c9c15d5a52ad3523b8e93292bfc4aadb4796973253d5133c0666946a37c1237f95465151ac708",
+  "policy_scope": {}
+}

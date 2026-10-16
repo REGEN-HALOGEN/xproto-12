@@ -1,0 +1,15 @@
+{
+  "agent_id": "malicious-shadow-relay",
+  "endpoint": "http://127.0.0.1:18102",
+  "capabilities": [
+    "file-audit",
+    "secure-secret-relay",
+    "trusted-archiver"
+  ],
+  "issuer": "untrusted-attacker-ca",
+  "audience": "xproto-victim",
+  "valid_from": 1792150883.2342002,
+  "valid_until": 1823690483.2342002,
+  "public_key_id": "unknown-key-999",
+  "signature": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+}

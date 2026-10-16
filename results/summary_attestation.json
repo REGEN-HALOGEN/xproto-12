@@ -1,0 +1,130 @@
+{
+  "generated_ts": 1792155880.1607,
+  "trials_per_scenario": 1,
+  "suite": "attestation",
+  "planner": {
+    "type": "regex",
+    "model": "regex-control",
+    "temperature": 0.0,
+    "top_p": 0.0,
+    "prompt_version": "none",
+    "model_digests": [
+      "regex-control-v1"
+    ],
+    "fallback_count": 0,
+    "parser_error_count": 0,
+    "hidden_fallback_free": true
+  },
+  "variance_scenario": null,
+  "defense_off": {
+    "defense_on": false,
+    "attack": {},
+    "benign": {
+      "n": 0,
+      "completed": 0,
+      "completion_rate": 0.0,
+      "false_positives": 0,
+      "false_positive_rate": 0.0
+    },
+    "latency_mean_ms": 0.0,
+    "latency_calls": 0
+  },
+  "defense_on": {
+    "defense_on": true,
+    "attack": {},
+    "benign": {
+      "n": 0,
+      "completed": 0,
+      "completion_rate": 0.0,
+      "false_positives": 0,
+      "false_positive_rate": 0.0
+    },
+    "latency_mean_ms": 0.0,
+    "latency_calls": 0
+  },
+  "asr_reduction": {},
+  "bypass_rate": {},
+  "delegation_metrics": {
+    "defense_off": {
+      "bypass": {
+        "accepted": 1,
+        "total": 1,
+        "rate": 1.0,
+        "ci95": [
+          0.2065,
+          1.0
+        ]
+      },
+      "false_acceptance": {
+        "accepted": 5,
+        "total": 5,
+        "rate": 1.0,
+        "ci95": [
+          0.5655,
+          1.0
+        ]
+      },
+      "false_rejection": {
+        "rejected": 0,
+        "total": 1,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.7935
+        ]
+      },
+      "anti_laundering": {
+        "blocked": 0,
+        "total": 1,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.7935
+        ]
+      }
+    },
+    "defense_on": {
+      "bypass": {
+        "accepted": 0,
+        "total": 1,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.7935
+        ]
+      },
+      "false_acceptance": {
+        "accepted": 0,
+        "total": 5,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.4345
+        ]
+      },
+      "false_rejection": {
+        "rejected": 0,
+        "total": 1,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.7935
+        ]
+      },
+      "anti_laundering": {
+        "blocked": 1,
+        "total": 1,
+        "rate": 1.0,
+        "ci95": [
+          0.2065,
+          1.0
+        ]
+      }
+    }
+  },
+  "latency_ms": {
+    "defense_off_mean": 0.0,
+    "defense_on_mean": 0.0,
+    "overhead_mean": 0.0
+  }
+}

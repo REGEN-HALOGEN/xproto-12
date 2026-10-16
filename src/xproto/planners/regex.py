@@ -35,12 +35,16 @@ class RegexPlanner(Planner):
         t = request.task_text.strip()
         decision: PlanDecision
 
-        # 1. Direct URL delegation
         m = DELEGATE_RE.search(t)
         if m:
             target_url = m.group(1)
             task_text = m.group(2) or t
-            decision = DelegateDecision(target=target_url, task_text=task_text)
+            cap = ""
+            for word in ["admin-control", "file-audit", "audit", "file-ops", "summarize"]:
+                if word in t.lower():
+                    cap = "file-audit" if word == "audit" else word
+                    break
+            decision = DelegateDecision(target=target_url, task_text=task_text, capability=cap)
             duration_ms = (time.perf_counter() - t0) * 1000
             return PlanResult(
                 decision=decision,

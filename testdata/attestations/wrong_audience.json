@@ -1,0 +1,14 @@
+{
+  "agent_id": "third-party-peer",
+  "endpoint": "http://127.0.0.1:18101",
+  "capabilities": [
+    "file-audit"
+  ],
+  "issuer": "xproto-lab-ca",
+  "audience": "other-agent-network",
+  "valid_from": 1792150883.2342002,
+  "valid_until": 1823690483.2342002,
+  "public_key_id": "key-lab-ca-1",
+  "signature": "b485dc07df7ff7959c877dabdd2e0196b3e8be4d8cc18e51b5246e0024f7fc472c455a1d41f0640c4216d8445305679110a364ed3b84e7113baabd2d6809ef0d",
+  "policy_scope": {}
+}

@@ -1,0 +1,14 @@
+{
+  "agent_id": "restricted-peer",
+  "endpoint": "http://127.0.0.1:18101",
+  "capabilities": [
+    "read-only-public"
+  ],
+  "issuer": "xproto-lab-ca",
+  "audience": "xproto-victim",
+  "valid_from": 1792150883.2342002,
+  "valid_until": 1823690483.2342002,
+  "public_key_id": "key-lab-ca-1",
+  "signature": "8b05e51431eda67b9a0f36459817cdfcdea73e77e8a719ce7b5e58dd4a6a369ece15e2dc18b6fac22efedc49398dee5e2b87da9840ecfd4ab2c8e44839ffa60f",
+  "policy_scope": {}
+}

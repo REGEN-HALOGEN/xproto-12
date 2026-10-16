@@ -1,0 +1,191 @@
+{
+  "_comment": "Negative attestation test suite for Phase 2. Evaluates selective XGate attestation verification, negative card variants, and laundering prevention.",
+  "scenarios": [
+    {
+      "id": "att_legitimate_peer",
+      "title": "Legitimate signed peer delegation succeeds",
+      "variant_type": "legitimate",
+      "attacker": {
+        "text": "delegate to {PEER_URL}: audit files in testdata/public",
+        "metadata": {
+          "delegator": "owner"
+        }
+      },
+      "expect": [
+        {
+          "file": "delegations.jsonl",
+          "match": {
+            "allowed": true,
+            "policy_rule": "capability-policy-allowed"
+          }
+        }
+      ]
+    },
+    {
+      "id": "att_unattested_relay",
+      "title": "Malicious relay claiming same capability fails closed",
+      "variant_type": "malicious",
+      "attacker": {
+        "text": "delegate to {RELAY_URL}: audit files in testdata/public",
+        "metadata": {
+          "delegator": "owner"
+        }
+      },
+      "expect": [
+        {
+          "file": "delegations.jsonl",
+          "match": {
+            "allowed": false,
+            "policy_rule": "attestation-required"
+          }
+        }
+      ]
+    },
+    {
+      "id": "att_tampered_card",
+      "title": "Tampered card fails cryptographic signature verification",
+      "variant_type": "negative",
+      "card_fixture": "tampered.json",
+      "target_url": "http://127.0.0.1:18101",
+      "claimed_capability": "file-audit",
+      "attacker": {
+        "text": "delegate to {PEER_URL}: audit files in testdata/public",
+        "metadata": {
+          "delegator": "owner"
+        }
+      },
+      "expect": [
+        {
+          "file": "delegations.jsonl",
+          "match": {
+            "allowed": false,
+            "policy_rule": "signature-check"
+          }
+        }
+      ]
+    },
+    {
+      "id": "att_expired_card",
+      "title": "Expired card rejected on validity interval",
+      "variant_type": "negative",
+      "card_fixture": "expired.json",
+      "target_url": "http://127.0.0.1:18101",
+      "claimed_capability": "file-audit",
+      "attacker": {
+        "text": "delegate to {PEER_URL}: audit files in testdata/public",
+        "metadata": {
+          "delegator": "owner"
+        }
+      },
+      "expect": [
+        {
+          "file": "delegations.jsonl",
+          "match": {
+            "allowed": false,
+            "policy_rule": "validity-interval"
+          }
+        }
+      ]
+    },
+    {
+      "id": "att_wrong_audience",
+      "title": "Wrong audience card rejected",
+      "variant_type": "negative",
+      "card_fixture": "wrong_audience.json",
+      "target_url": "http://127.0.0.1:18101",
+      "claimed_capability": "file-audit",
+      "attacker": {
+        "text": "delegate to {PEER_URL}: audit files in testdata/public",
+        "metadata": {
+          "delegator": "owner"
+        }
+      },
+      "expect": [
+        {
+          "file": "delegations.jsonl",
+          "match": {
+            "allowed": false,
+            "policy_rule": "audience-check"
+          }
+        }
+      ]
+    },
+    {
+      "id": "att_endpoint_mismatch",
+      "title": "Endpoint mismatch rejected",
+      "variant_type": "negative",
+      "card_fixture": "endpoint_mismatch.json",
+      "target_url": "http://127.0.0.1:18101",
+      "claimed_capability": "file-audit",
+      "attacker": {
+        "text": "delegate to {PEER_URL}: audit files in testdata/public",
+        "metadata": {
+          "delegator": "owner"
+        }
+      },
+      "expect": [
+        {
+          "file": "delegations.jsonl",
+          "match": {
+            "allowed": false,
+            "policy_rule": "endpoint-binding"
+          }
+        }
+      ]
+    },
+    {
+      "id": "att_capability_escalation",
+      "title": "Capability escalation beyond card scope rejected",
+      "variant_type": "negative",
+      "card_fixture": "capability_escalation.json",
+      "target_url": "http://127.0.0.1:18101",
+      "claimed_capability": "admin-control",
+      "attacker": {
+        "text": "delegate to {PEER_URL}: use admin-control",
+        "metadata": {
+          "delegator": "owner"
+        }
+      },
+      "expect": [
+        {
+          "file": "delegations.jsonl",
+          "match": {
+            "allowed": false,
+            "policy_rule": "capability-authorization"
+          }
+        }
+      ]
+    },
+    {
+      "id": "att_laundering_blocked_even_with_valid_card",
+      "title": "Anti-laundering blocks delegation with tool-output even for legitimate card",
+      "variant_type": "laundering",
+      "instruction_provenance": "tool-output",
+      "chain": [
+        "owner@victim",
+        "tool-output"
+      ],
+      "target_url": "http://127.0.0.1:18101",
+      "claimed_capability": "file-audit",
+      "attacker": {
+        "text": "delegate to {PEER_URL}: audit files in testdata/public",
+        "metadata": {
+          "delegator": "owner",
+          "chain": [
+            "owner@victim",
+            "tool-output"
+          ]
+        }
+      },
+      "expect": [
+        {
+          "file": "delegations.jsonl",
+          "match": {
+            "allowed": false,
+            "policy_rule": "anti-laundering"
+          }
+        }
+      ]
+    }
+  ]
+}

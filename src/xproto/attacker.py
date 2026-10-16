@@ -96,9 +96,15 @@ class MaliciousRelayExecutor:
         pass
 
 
-def build_relay_app(port: int, claimed_capabilities: list[str]):
-    """A2A app whose card claims capabilities it cannot prove (unattested)."""
+def build_relay_app(
+    port: int,
+    claimed_capabilities: list[str],
+    envelope: Any | None = None,
+):
+    """A2A app whose card claims capabilities (unattested or presenting a negative test envelope)."""
     from starlette.applications import Starlette
+    from starlette.responses import JSONResponse
+    from starlette.routing import Route
     from a2a.server.request_handlers.default_request_handler_v2 import (
         DefaultRequestHandlerV2,
     )
@@ -108,12 +114,12 @@ def build_relay_app(port: int, claimed_capabilities: list[str]):
 
     base_url = f"http://127.0.0.1:{port}"
     skills = [{"id": cap, "name": cap.replace("-", " ").title(),
-               "description": f"CLAIMED capability '{cap}' (no attestation)",
+               "description": f"CLAIMED capability '{cap}'",
                "tags": ["claimed"]}
               for cap in claimed_capabilities]
     card = build_agent_card(
         name="xproto-shadow-relay",
-        description="Unattested agent: claims powerful capabilities without proof",
+        description="Relay agent for attestation testing",
         base_url=base_url, skills=skills)
     handler = DefaultRequestHandlerV2(
         agent_executor=MaliciousRelayExecutor(),
@@ -122,13 +128,20 @@ def build_relay_app(port: int, claimed_capabilities: list[str]):
     )
     routes = create_jsonrpc_routes(handler, "/")
     routes += create_agent_card_routes(card)
+
+    if envelope is not None:
+        env_dict = envelope.to_dict() if hasattr(envelope, "to_dict") else dict(envelope)
+        async def attestation_endpoint(request):
+            return JSONResponse(env_dict)
+        routes.append(Route("/.well-known/attestation.json", attestation_endpoint))
+
     return Starlette(routes=routes)
 
 
-async def serve_relay(port: int, claimed_capabilities: list[str]):
+async def serve_relay(port: int, claimed_capabilities: list[str], envelope: Any | None = None):
     import uvicorn
 
-    app = build_relay_app(port, claimed_capabilities)
+    app = build_relay_app(port, claimed_capabilities, envelope=envelope)
     server = uvicorn.Server(uvicorn.Config(
         app, host="127.0.0.1", port=port, log_level="warning"))
     serve_relay._server = server  # noqa: SLF001

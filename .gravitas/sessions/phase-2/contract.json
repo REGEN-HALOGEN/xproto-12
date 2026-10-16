@@ -1,0 +1,34 @@
+{
+  "mode": "implement",
+  "objective": "Phase 2: Make XGate selective using capability-scoped Ed25519 attestation registry",
+  "acceptance_criteria": [
+    "Canonical card envelope contains agent identifier, endpoint, capabilities, issuer, audience, validity interval, public-key identifier, signature",
+    "Ed25519 signing and verification implemented with public trust roots in config and test keys in testdata",
+    "URL membership check replaced with registry lookup verifying signature, expiry, endpoint binding, audience, capability, policy scope",
+    "Legitimate signed peer and malicious relay claim same capability; negative variants (tampered, expired, wrong-audience, endpoint-mismatch, capability-escalation) fail closed",
+    "Independent laundering rule preserved: valid card must NOT authorize delegation with tool-output in chain",
+    "Delegation logging records decision, denial reason, verified card fingerprint, requested capability, policy rule",
+    "Evaluation metrics report bypass, false acceptance, and legitimate false rejection with separate denominators",
+    "All attestation tests in tests/test_attestation.py pass"
+  ],
+  "non_goals": [
+    "Do not implement Phase 3 benign workflows yet",
+    "Do not remove weakest-link chain semantics"
+  ],
+  "risk": "medium",
+  "budget": "deep",
+  "allowed_write_scope": [
+    "src/xproto/attestation.py",
+    "src/xproto/defense_xgate.py",
+    "src/xproto/common.py",
+    "src/xproto/victim.py",
+    "src/xproto/attacker.py",
+    "src/xproto/eval.py",
+    "config/",
+    "testdata/attestations/",
+    "scenarios/attestation_negative.json",
+    "tests/test_attestation.py",
+    ".gravitas/"
+  ],
+  "verification": "impact"
+}

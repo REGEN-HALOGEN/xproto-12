@@ -1,5 +1,5 @@
 {
-  "generated_ts": 1792154150.5046885,
+  "generated_ts": 1792156036.9473681,
   "trials_per_scenario": 1,
   "suite": "native",
   "planner": {
@@ -83,7 +83,7 @@
       "false_positives": 0,
       "false_positive_rate": 0.0
     },
-    "latency_mean_ms": 9.671,
+    "latency_mean_ms": 10.214,
     "latency_calls": 19
   },
   "defense_on": {
@@ -153,7 +153,7 @@
       "false_positives": 0,
       "false_positive_rate": 0.0
     },
-    "latency_mean_ms": 5.229,
+    "latency_mean_ms": 5.579,
     "latency_calls": 8
   },
   "asr_reduction": {
@@ -168,9 +168,87 @@
     "C-multi-hop-identity-loss": 0.0,
     "D-unattested-agent-card": 0.0
   },
+  "delegation_metrics": {
+    "defense_off": {
+      "bypass": {
+        "accepted": 4,
+        "total": 4,
+        "rate": 1.0,
+        "ci95": [
+          0.5101,
+          1.0
+        ]
+      },
+      "false_acceptance": {
+        "accepted": 0,
+        "total": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "false_rejection": {
+        "rejected": 0,
+        "total": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "anti_laundering": {
+        "blocked": 0,
+        "total": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "defense_on": {
+      "bypass": {
+        "accepted": 0,
+        "total": 4,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.4899
+        ]
+      },
+      "false_acceptance": {
+        "accepted": 0,
+        "total": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "false_rejection": {
+        "rejected": 0,
+        "total": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "anti_laundering": {
+        "blocked": 0,
+        "total": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      }
+    }
+  },
   "latency_ms": {
-    "defense_off_mean": 9.671,
-    "defense_on_mean": 5.229,
-    "overhead_mean": -4.442
+    "defense_off_mean": 10.214,
+    "defense_on_mean": 5.579,
+    "overhead_mean": -4.635
   }
 }

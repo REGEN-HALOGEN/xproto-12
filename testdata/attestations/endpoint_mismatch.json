@@ -1,0 +1,14 @@
+{
+  "agent_id": "mismatched-peer",
+  "endpoint": "http://127.0.0.1:19999",
+  "capabilities": [
+    "file-audit"
+  ],
+  "issuer": "xproto-lab-ca",
+  "audience": "xproto-victim",
+  "valid_from": 1792150883.2342002,
+  "valid_until": 1823690483.2342002,
+  "public_key_id": "key-lab-ca-1",
+  "signature": "ba74d68235bf4f3b9ba918bd6523ab953b123a38110c6aecc65823555f8b407359ff465726854fe39d93a6d0736640b5b6169f101c07ff4f14c4130b828c6b06",
+  "policy_scope": {}
+}

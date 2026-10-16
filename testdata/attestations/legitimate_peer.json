@@ -1,0 +1,17 @@
+{
+  "agent_id": "peer-summarizer",
+  "endpoint": "http://127.0.0.1:18101",
+  "capabilities": [
+    "file-ops",
+    "file-audit",
+    "messaging",
+    "summarize"
+  ],
+  "issuer": "xproto-lab-ca",
+  "audience": "xproto-victim",
+  "valid_from": 1792150883.2342002,
+  "valid_until": 1823690483.2342002,
+  "public_key_id": "key-lab-ca-1",
+  "signature": "733c7b6a9431d57fa6c5cfad33ba7aa539f8de4068c0395912817850bf85a08a573eda3764955c793100a012b1a3c1efd9596fc5d6e04c53c8836461882ad70e",
+  "policy_scope": {}
+}

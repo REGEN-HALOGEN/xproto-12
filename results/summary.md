@@ -1,9 +1,18 @@
 # XProto-12 evaluation summary
 
 Suite: native | Planner: regex (regex-control)
-Trials per scenario: 1 | generated 2026-10-16 18:05:50
+Trials per scenario: 1 | generated 2026-10-16 18:37:16
 Model digests: regex-control-v1
 Fallbacks logged: 0 | Parser errors: 0
+
+## Attestation & delegation metrics (Phase 2)
+
+| Metric | Denominator | Defense OFF | 95% CI | Defense ON | 95% CI | Target |
+|---|---|---|---|---|---|---|
+| Malicious bypass rate | 4 malicious delegations | 1.000 (4/4) | [0.510, 1.000] | 0.000 (0/4) | [0.000, 0.490] | 0.000 |
+| Negative card false acceptance rate | 0 negative cards | 0.000 (0/0) | [0.000, 0.000] | 0.000 (0/0) | [0.000, 0.000] | 0.000 |
+| Legitimate false rejection rate | 0 legitimate delegations | 0.000 (0/0) | [0.000, 0.000] | 0.000 (0/0) | [0.000, 0.000] | 0.000 |
+| Anti-laundering block rate | 0 laundering delegations | 0.000 (0/0) | [0.000, 0.000] | 0.000 (0/0) | [0.000, 0.000] | 1.000 |
 
 ## Attack success rate (ASR) per class
 
@@ -21,7 +30,7 @@ Fallbacks logged: 0 | Parser errors: 0
 
 ## XGate latency overhead
 
-- mean per-call latency, defense off: 9.671 ms
-- mean per-call latency, defense on: 5.229 ms
-- mean overhead: -4.442 ms
+- mean per-call latency, defense off: 10.214 ms
+- mean per-call latency, defense on: 5.579 ms
+- mean overhead: -4.635 ms
 

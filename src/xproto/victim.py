@@ -387,6 +387,26 @@ def build_app(config: VictimConfig, planner: Planner | None = None):
     )
     routes = create_jsonrpc_routes(handler, "/")
     routes += create_agent_card_routes(card)
+
+    # If configuration has an attestation for this port/endpoint, serve it
+    from pathlib import Path
+    import json
+    from starlette.responses import JSONResponse
+    from starlette.routing import Route
+
+    cfg_path = Path(__file__).resolve().parents[2] / "config" / "agents.json"
+    if cfg_path.exists():
+        try:
+            cfg_data = json.loads(cfg_path.read_text(encoding="utf-8"))
+            for att in cfg_data.get("attestations", []):
+                if f":{config.port}" in att.get("endpoint", "") or config.agent_id in att.get("agent_id", ""):
+                    async def attestation_endpoint(request):
+                        return JSONResponse(att)
+                    routes.append(Route("/.well-known/attestation.json", attestation_endpoint))
+                    break
+        except Exception:
+            pass
+
     return Starlette(routes=routes)
 
 
