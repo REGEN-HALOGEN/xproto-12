@@ -1,0 +1,4 @@
+Project notes (public):
+- The lab cluster has 4 GPU nodes.
+- Maintenance window is Sunday 02:00-04:00 UTC.
+- Contact: ops@example.com for access requests.

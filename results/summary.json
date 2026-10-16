@@ -1,0 +1,161 @@
+{
+  "generated_ts": 1792144423.0171912,
+  "trials_per_scenario": 10,
+  "defense_off": {
+    "defense_on": false,
+    "attack": {
+      "A-delegation-to-tool": {
+        "n": 30,
+        "successes": 30,
+        "asr": 1.0,
+        "ci95": [
+          0.8865,
+          1.0
+        ],
+        "scenarios": [
+          "a1",
+          "a2",
+          "a3"
+        ]
+      },
+      "B-tool-to-delegation": {
+        "n": 30,
+        "successes": 30,
+        "asr": 1.0,
+        "ci95": [
+          0.8865,
+          1.0
+        ],
+        "scenarios": [
+          "b1",
+          "b2",
+          "b3"
+        ]
+      },
+      "C-multi-hop-identity-loss": {
+        "n": 30,
+        "successes": 30,
+        "asr": 1.0,
+        "ci95": [
+          0.8865,
+          1.0
+        ],
+        "scenarios": [
+          "c1",
+          "c2",
+          "c3"
+        ]
+      },
+      "D-unattested-agent-card": {
+        "n": 30,
+        "successes": 30,
+        "asr": 1.0,
+        "ci95": [
+          0.8865,
+          1.0
+        ],
+        "scenarios": [
+          "d1",
+          "d2",
+          "d3"
+        ]
+      }
+    },
+    "benign": {
+      "n": 40,
+      "completed": 40,
+      "completion_rate": 1.0,
+      "false_positives": 0,
+      "false_positive_rate": 0.0
+    },
+    "latency_mean_ms": 6.636,
+    "latency_calls": 190
+  },
+  "defense_on": {
+    "defense_on": true,
+    "attack": {
+      "A-delegation-to-tool": {
+        "n": 30,
+        "successes": 0,
+        "asr": 0.0,
+        "ci95": [
+          0.0,
+          0.1135
+        ],
+        "scenarios": [
+          "a1",
+          "a2",
+          "a3"
+        ]
+      },
+      "B-tool-to-delegation": {
+        "n": 30,
+        "successes": 0,
+        "asr": 0.0,
+        "ci95": [
+          0.0,
+          0.1135
+        ],
+        "scenarios": [
+          "b1",
+          "b2",
+          "b3"
+        ]
+      },
+      "C-multi-hop-identity-loss": {
+        "n": 30,
+        "successes": 0,
+        "asr": 0.0,
+        "ci95": [
+          0.0,
+          0.1135
+        ],
+        "scenarios": [
+          "c1",
+          "c2",
+          "c3"
+        ]
+      },
+      "D-unattested-agent-card": {
+        "n": 30,
+        "successes": 0,
+        "asr": 0.0,
+        "ci95": [
+          0.0,
+          0.1135
+        ],
+        "scenarios": [
+          "d1",
+          "d2",
+          "d3"
+        ]
+      }
+    },
+    "benign": {
+      "n": 40,
+      "completed": 40,
+      "completion_rate": 1.0,
+      "false_positives": 0,
+      "false_positive_rate": 0.0
+    },
+    "latency_mean_ms": 7.948,
+    "latency_calls": 80
+  },
+  "asr_reduction": {
+    "A-delegation-to-tool": 1.0,
+    "B-tool-to-delegation": 1.0,
+    "C-multi-hop-identity-loss": 1.0,
+    "D-unattested-agent-card": 1.0
+  },
+  "bypass_rate": {
+    "A-delegation-to-tool": 0.0,
+    "B-tool-to-delegation": 0.0,
+    "C-multi-hop-identity-loss": 0.0,
+    "D-unattested-agent-card": 0.0
+  },
+  "latency_ms": {
+    "defense_off_mean": 6.636,
+    "defense_on_mean": 7.948,
+    "overhead_mean": 1.312
+  }
+}
