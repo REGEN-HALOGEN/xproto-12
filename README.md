@@ -72,29 +72,41 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 # Run pytest verification suite
 pytest tests -v
 
-# Run Phase 1 smoke suite (10 trials at non-zero temperature)
-python -m xproto.eval --suite smoke --planner ollama --trials 10
+# Run Phase 5 simulation power analysis
+python study/power.py
 
-# Run evaluation with separate regex and LLM outputs
-python -m xproto.eval --planner both --trials 10
+# Run evaluation with paired statistical tests and run manifest
+python -m xproto.eval --planner regex --trials 1
 ```
 
-Each trial runs in its own log dir under `results/trials/`; separate summaries land in:
+Each trial runs in its own log dir under `results/trials/`; outputs land in:
 - `results/summary_regex.json` / `results/summary_regex.md`
 - `results/summary_llm.json` / `results/summary_llm.md`
+- `results/run_manifest.json` — complete provenance manifest (git commit, dependency hashes, scenario hash, seeds, model digests, per-observation telemetry and exclusions)
+
+## Statistical Methodology (Phase 5)
+
+XProto-12 implements a formal pre-registered evaluation protocol:
+- **Pre-Registered Protocol (`study/protocol.yaml`)**: Freezes hypotheses $H_1-H_4$, primary endpoints (Risk Difference / ASR reduction), secondary endpoints (Bypass rate, Exfiltration reduction, False Positive Rate, False Rejection Rate, Latency overhead), exclusion rules, and Holm-Bonferroni FWER control ($\alpha = 0.05$).
+- **Simulation Power Analysis (`study/power.py`)**: Monte Carlo power analysis calculating required sample size per scenario under target effect size ($\Delta = 0.80$) and $\alpha = 0.05$. Results in `study/power_results.json` demonstrate $\ge 80\%$ statistical power with $\ge 5$ trials per scenario.
+- **Paired Hypothesis Testing (`src/xproto/stats.py`)**: Matches trials across vulnerable and defended modes by `(scenario_id, trial_idx)` with synchronized pseudo-random seeds. Evaluates contingency tables using exact binomial or continuity-adjusted McNemar tests, Newcombe Hybrid Score CIs for Risk Difference, Katz log-transformed Wald intervals for Risk Ratio, and step-down Holm-Bonferroni multiplicity correction.
+- **Latency Bootstrap Distributions**: Nonparametric bootstrap percentiles (median, mean, p95, p99) with 95% bootstrap confidence intervals.
 
 ## Layout
 
 - `src/xproto/common.py` — logging, sensitivity model, proto helpers
 - `src/xproto/config.py` — configuration models (Ollama, Planner, Victim)
 - `src/xproto/planners/` — planner protocol, regex control, and Ollama adapter
-- `src/xproto/mcp_server.py` — MCP tool server (stdio)
+- `src/xproto/stats.py` — Wilson CIs, Newcombe RD CIs, Katz RR CIs, McNemar tests, Holm-Bonferroni correction, latency bootstrap
+- `src/xproto/mcp_server.py` — MCP tool server (stdio sandboxed to testdata)
 - `src/xproto/victim.py` — dual-protocol victim agent (A2A server with pluggable planner)
 - `src/xproto/attacker.py` — A2A client, shadow relay (exfil sink)
-- `src/xproto/defense_xgate.py` — XGate authorization proxy
-- `src/xproto/eval.py` — evaluation runner emitting separate regex and LLM metrics
-- `scenarios/` — XProto-12 attack corpus, benign corpus, and planner smoke corpus
-- `testdata/` — public / poisoned / secrets fixtures
-- `tests/` — planner contract, parser, fallback, and provenance tests
-- `results/` — per-trial logs + separate regex and LLM summaries
+- `src/xproto/defense_xgate.py` — XGate authorization proxy with attestation registry
+- `src/xproto/eval.py` — evaluation runner with paired hypothesis tests and run manifest
+- `study/` — pre-registered evaluation protocol (`protocol.yaml`) and power simulation (`power.py`)
+- `scenarios/` — XProto-12 attack corpus, benign corpus, attestation corpus, and planner smoke corpus
+- `testdata/` — public / poisoned / synthetic secret fixtures (`fixtures.json`)
+- `tests/` — sandbox, attestation, delegation, statistics, and planner tests
+- `results/` — per-trial logs, paired statistical summaries, and run manifest
+
 

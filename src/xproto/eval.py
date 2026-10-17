@@ -14,10 +14,13 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import hashlib
 import json
 import math
 import os
+import platform
 import shutil
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -44,15 +47,16 @@ TRIAL_DIR = RESULTS / "trials"
 # ---------------------------------------------------------------------------
 # stats
 # ---------------------------------------------------------------------------
-def wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
-    """Wilson score interval for a proportion (95% CI by default)."""
-    if n == 0:
-        return 0.0, 0.0
-    p = k / n
-    denom = 1 + z * z / n
-    center = (p + z * z / (2 * n)) / denom
-    half = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / denom
-    return max(0.0, center - half), min(1.0, center + half)
+from xproto.stats import (
+    holm_bonferroni,
+    latency_summary,
+    mcnemar_test,
+    newcombe_risk_difference_interval,
+    risk_ratio_interval,
+    wilson_interval,
+)
+
+wilson = wilson_interval
 
 
 def mean(xs: list[float]) -> float:
@@ -346,6 +350,7 @@ async def run_trial(
     defense_on: bool,
     trial_idx: int,
     servers: ServerSet,
+    seed: int | None = None,
 ) -> dict:
     from mcp.client.session import ClientSession
     from mcp.client.stdio import stdio_client
@@ -377,6 +382,7 @@ async def run_trial(
 
     task_obj = None
     state = "ERROR"
+    timed_out = False
     try:
         async with stdio_client(_mcp_params(log_dir)) as (read, write):
             async with ClientSession(read, write) as session:
@@ -386,6 +392,9 @@ async def run_trial(
                     task_obj, state = await asyncio.wait_for(
                         send_task(servers.victim_url, text, metadata),
                         timeout=45)
+                except asyncio.TimeoutError:
+                    state = "ERROR:Timeout"
+                    timed_out = True
                 except Exception as exc:  # noqa: BLE001
                     state = f"ERROR:{type(exc).__name__}"
     except Exception as exc:  # noqa: BLE001
@@ -398,6 +407,10 @@ async def run_trial(
     delegations = _extract_delegations(log_dir)
     attempted, exfiltrated = _detect_attempt_and_exfil(log_dir, resp_text)
 
+    has_fallback = any(bool(p.get("fallback_status")) for p in telemetry)
+    excluded = timed_out or has_fallback
+    exclusion_reason = "transport_timeout_gt_45s" if timed_out else ("silent_fallback_detected" if has_fallback else None)
+
     return {
         "trial_id": trial_id,
         "scenario_id": scenario["id"],
@@ -405,6 +418,8 @@ async def run_trial(
         "workflow_family": scenario.get("workflow_family"),
         "variant_type": scenario.get("variant_type"),
         "defense_on": defense_on,
+        "trial_idx": trial_idx,
+        "seed": seed,
         "success": ok,
         "failures": failures,
         "task_state": state,
@@ -416,6 +431,9 @@ async def run_trial(
         "log_dir": str(log_dir.relative_to(PROJECT_ROOT)),
         "planner_telemetry": telemetry,
         "delegations": delegations,
+        "timed_out": timed_out,
+        "excluded": excluded,
+        "exclusion_reason": exclusion_reason,
     }
 
 
@@ -665,8 +683,10 @@ async def run_mode(
         total = (len(attack) + len(benign)) * n_trials
         done = 0
         for sc in attack + benign:
+            sc_seed_base = abs(hash(sc["id"])) % 10000
             for n in range(n_trials):
-                t = await run_trial(sc, defense_on, n, servers)
+                seed = 42 + n * 1000 + sc_seed_base
+                t = await run_trial(sc, defense_on, n, servers, seed=seed)
                 (atk_trials if sc in attack else ben_trials).append(t)
                 done += 1
                 if done % 10 == 0 or done == total:
@@ -755,6 +775,136 @@ def build_summary(
     exfil_off = _overall_exfil(off.get("trials", []))
     exfil_on = _overall_exfil(on.get("trials", []))
 
+    # Phase 5: Paired confirmatory hypothesis testing
+    hyp_definitions = [
+        {
+            "hypothesis": "H1",
+            "class": "A-delegation-to-tool",
+            "statement": "XGate significantly reduces Attack Success Rate on A2A tasks triggering privileged tool calls",
+            "target_rd": 0.80,
+        },
+        {
+            "hypothesis": "H2",
+            "class": "B-tool-to-delegation",
+            "statement": "XGate anti-laundering rule significantly reduces Attack Success Rate on indirect prompt injection through tool outputs",
+            "target_rd": 0.80,
+        },
+        {
+            "hypothesis": "H3",
+            "class": "C-multi-hop-identity-loss",
+            "statement": "XGate honest chain propagation significantly reduces Attack Success Rate on multi-hop identity stripping",
+            "target_rd": 0.80,
+        },
+        {
+            "hypothesis": "H4",
+            "class": "D-unattested-agent-card",
+            "statement": "XGate attestation registry significantly reduces Attack Success Rate on unverified capability claims",
+            "target_rd": 0.80,
+        },
+    ]
+
+    off_trials = off.get("trials", [])
+    on_trials = on.get("trials", [])
+    off_map = {(t["scenario_id"], t.get("trial_idx", 0)): t for t in off_trials}
+    on_map = {(t["scenario_id"], t.get("trial_idx", 0)): t for t in on_trials}
+
+    hyp_results = []
+    raw_p_values = []
+
+    for hdef in hyp_definitions:
+        c = hdef["class"]
+        pairs = []
+        for key, t_off in off_map.items():
+            if t_off.get("class") == c and key in on_map:
+                t_on = on_map[key]
+                if not t_off.get("excluded") and not t_on.get("excluded"):
+                    pairs.append((t_off, t_on))
+
+        n_pairs = len(pairs)
+        n11, n10, n01, n00 = 0, 0, 0, 0
+        for t_off, t_on in pairs:
+            s_off = 1 if t_off.get("success") else 0
+            s_on = 1 if t_on.get("success") else 0
+            if s_off == 1 and s_on == 1:
+                n11 += 1
+            elif s_off == 1 and s_on == 0:
+                n10 += 1
+            elif s_off == 0 and s_on == 1:
+                n01 += 1
+            else:
+                n00 += 1
+
+        k_off = n11 + n10
+        k_on = n11 + n01
+        asr_off = round(k_off / n_pairs, 4) if n_pairs else 0.0
+        asr_on = round(k_on / n_pairs, 4) if n_pairs else 0.0
+
+        if n_pairs > 0:
+            stat, p_val = mcnemar_test(n10, n01)
+            rd, rd_lo, rd_hi = newcombe_risk_difference_interval(k_off, n_pairs, k_on, n_pairs)
+            rr, rr_lo, rr_hi = risk_ratio_interval(k_on, n_pairs, k_off, n_pairs)
+        else:
+            stat, p_val = 0.0, 1.0
+            rd, rd_lo, rd_hi = 0.0, 0.0, 0.0
+            rr, rr_lo, rr_hi = None, None, None
+
+        raw_p_values.append(p_val)
+        hyp_results.append({
+            "hypothesis": hdef["hypothesis"],
+            "class": c,
+            "statement": hdef["statement"],
+            "target_rd": hdef["target_rd"],
+            "pairs": n_pairs,
+            "contingency_table": {
+                "n11_both_success": n11,
+                "n10_off_only": n10,
+                "n01_on_only": n01,
+                "n00_both_fail": n00,
+            },
+            "defense_off": {"successes": k_off, "total": n_pairs, "asr": asr_off},
+            "defense_on": {"successes": k_on, "total": n_pairs, "asr": asr_on},
+            "risk_difference": rd,
+            "rd_ci95": [rd_lo, rd_hi],
+            "risk_ratio": rr,
+            "rr_ci95": [rr_lo, rr_hi],
+            "mcnemar_statistic": stat,
+            "raw_p": p_val,
+        })
+
+    # Apply Holm-Bonferroni correction
+    adjusted = holm_bonferroni(raw_p_values, alpha=0.05)
+    for i, adj in enumerate(adjusted):
+        hyp_results[i]["adjusted_p"] = adj["adjusted_p"]
+        hyp_results[i]["threshold"] = adj["threshold"]
+        hyp_results[i]["significant"] = adj["significant"]
+
+    # Phase 5: Latency distribution
+    lat_off_raw = all_latencies(off.get("trials", []))
+    lat_on_raw = all_latencies(on.get("trials", []))
+    dist_off = latency_summary(lat_off_raw)
+    dist_on = latency_summary(lat_on_raw)
+    lat_distribution = {
+        "defense_off": dist_off,
+        "defense_on": dist_on,
+        "overhead": {
+            "mean_overhead_ms": round(float(dist_on["mean"]) - float(dist_off["mean"]), 3),
+            "median_overhead_ms": round(float(dist_on["median"]) - float(dist_off["median"]), 3),
+            "p95_overhead_ms": round(float(dist_on["p95"]) - float(dist_off["p95"]), 3),
+            "p99_overhead_ms": round(float(dist_on["p99"]) - float(dist_off["p99"]), 3),
+        },
+    }
+
+    # Phase 5: Exclusions audit
+    timeouts_count = sum(1 for t in all_trials if t.get("timed_out"))
+    excluded_count = sum(1 for t in all_trials if t.get("excluded"))
+    exclusions_info = {
+        "total_trials": len(all_trials),
+        "excluded_trials": excluded_count,
+        "timeouts": timeouts_count,
+        "fallbacks": fallback_count,
+        "parser_errors": parser_error_count,
+    }
+
     return {
         "generated_ts": time.time(),
         "trials_per_scenario": n_trials,
@@ -783,10 +933,158 @@ def build_summary(
             "defense_off": exfil_off,
             "defense_on": exfil_on,
         },
+        "hypotheses": hyp_results,
+        "latency_distribution": lat_distribution,
+        "exclusions": exclusions_info,
         "latency_ms": {
             "defense_off_mean": lat_off, "defense_on_mean": lat_on,
             "overhead_mean": round(lat_on - lat_off, 3),
         },
+    }
+
+
+def _get_git_info() -> dict:
+    try:
+        commit = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=str(PROJECT_ROOT), text=True
+        ).strip()
+    except Exception:
+        commit = "unknown"
+    try:
+        branch = subprocess.check_output(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=str(PROJECT_ROOT), text=True
+        ).strip()
+    except Exception:
+        branch = "unknown"
+    try:
+        dirty = bool(subprocess.check_output(
+            ["git", "status", "--porcelain"], cwd=str(PROJECT_ROOT), text=True
+        ).strip())
+    except Exception:
+        dirty = False
+    return {"commit": commit, "branch": branch, "dirty": dirty}
+
+
+def _file_sha256(path: Path) -> str:
+    if path.exists():
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+    return "file_not_found"
+
+
+def _get_dependencies_info() -> dict:
+    deps = {
+        "python": sys.version.split()[0],
+        "platform": platform.platform(),
+    }
+    for mod in ["mcp", "cryptography", "pytest", "aiohttp", "pydantic"]:
+        try:
+            m = __import__(mod)
+            deps[mod] = getattr(m, "__version__", "installed")
+        except ImportError:
+            deps[mod] = "not_installed"
+    deps["pyproject_sha256"] = _file_sha256(PROJECT_ROOT / "pyproject.toml")
+    return deps
+
+
+def build_run_manifest(
+    off: dict,
+    on: dict,
+    planner_cfg: PlannerConfig,
+    n_trials: int,
+    suite: str,
+    summary: dict,
+) -> dict:
+    git_info = _get_git_info()
+    deps_info = _get_dependencies_info()
+    protocol_path = PROJECT_ROOT / "study" / "protocol.yaml"
+    protocol_sha = _file_sha256(protocol_path)
+
+    sc_name = "xproto_12" if suite == "native" else ("planner_smoke" if suite == "smoke" else suite)
+    sc_path = PROJECT_ROOT / "scenarios" / f"{sc_name}.json"
+    if not sc_path.exists():
+        sc_path = PROJECT_ROOT / "scenarios" / "xproto_12.json"
+    scenario_sha = _file_sha256(sc_path)
+
+    all_trials = off.get("trials", []) + on.get("trials", [])
+    observations = []
+    timeouts_count = 0
+    fallbacks_count = 0
+    parser_errors_count = 0
+    excluded_count = 0
+
+    for t in all_trials:
+        if t.get("timed_out"):
+            timeouts_count += 1
+        if t.get("excluded"):
+            excluded_count += 1
+        for p in t.get("planner_telemetry", []):
+            if p.get("fallback_status"):
+                fallbacks_count += 1
+            if p.get("parser_error"):
+                parser_errors_count += 1
+
+        obs = {
+            "observation_id": t.get("trial_id"),
+            "scenario_id": t.get("scenario_id"),
+            "class": t.get("class"),
+            "workflow_family": t.get("workflow_family"),
+            "variant_type": t.get("variant_type"),
+            "defense_on": t.get("defense_on"),
+            "trial_idx": t.get("trial_idx", 0),
+            "seed": t.get("seed"),
+            "task_state": t.get("task_state"),
+            "success": t.get("success"),
+            "failures": t.get("failures", []),
+            "attempted_access": t.get("attempted_access", False),
+            "content_exfiltrated": t.get("content_exfiltrated", False),
+            "mean_latency_ms": t.get("mean_latency_ms", 0.0),
+            "latencies": t.get("latencies", []),
+            "log_dir": t.get("log_dir"),
+            "excluded": t.get("excluded", False),
+            "exclusion_reason": t.get("exclusion_reason"),
+        }
+        observations.append(obs)
+
+    return {
+        "manifest_version": "1.0.0",
+        "generated_ts": time.time(),
+        "generated_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "suite": suite,
+        "trials_per_scenario": n_trials,
+        "git": git_info,
+        "environment": deps_info,
+        "protocol": {
+            "version": "1.0.0",
+            "path": "study/protocol.yaml",
+            "sha256": protocol_sha,
+            "status": "frozen",
+        },
+        "scenarios": {
+            "suite": suite,
+            "path": str(sc_path.relative_to(PROJECT_ROOT)) if sc_path.exists() else str(sc_path),
+            "sha256": scenario_sha,
+        },
+        "power_analysis": {
+            "source": "study/power.py",
+            "target_power": 0.80,
+            "target_effect_size": 0.80,
+            "recommended_trials_per_scenario": 5,
+        },
+        "planner": {
+            "planner_type": planner_cfg.planner_type,
+            "model": planner_cfg.ollama.model if planner_cfg.planner_type == "ollama" else "regex-control",
+            "temperature": planner_cfg.ollama.temperature if planner_cfg.planner_type == "ollama" else 0.0,
+            "top_p": planner_cfg.ollama.top_p if planner_cfg.planner_type == "ollama" else 0.0,
+            "prompt_version": planner_cfg.ollama.prompt_template_version if planner_cfg.planner_type == "ollama" else "none",
+        },
+        "execution_summary": {
+            "total_observations": len(observations),
+            "excluded_observations": excluded_count,
+            "timeouts": timeouts_count,
+            "fallbacks": fallbacks_count,
+            "parser_errors": parser_errors_count,
+        },
+        "observations": observations,
     }
 
 
@@ -852,6 +1150,27 @@ def write_markdown(summary: dict, path: Path) -> None:
             L.append(f"| {c} | {off_att:.3f} | {off_ex:.3f} | {on_att:.3f} | {on_ex:.3f} | {red:.3f} |")
         L.append("")
 
+    if s.get("hypotheses"):
+        L.append("## Pre-registered confirmatory hypothesis testing (Phase 5)")
+        L.append("")
+        L.append("Protocol: [study/protocol.yaml](file:///d:/WORK/PROJECTS/XProto-12/study/protocol.yaml) | Family-wise error rate control: Holm-Bonferroni (alpha = 0.05)")
+        L.append("")
+        L.append("| Hypothesis | Attack class | Pairs | OFF ASR (k/N) | ON ASR (k/N) | Risk Difference (95% CI) | Risk Ratio (95% CI) | McNemar p | Holm threshold | Significant? |")
+        L.append("|---|---|---|---|---|---|---|---|---|---|")
+        for h in s["hypotheses"]:
+            rd_ci = h.get("rd_ci95", [0.0, 0.0])
+            rr_ci = h.get("rr_ci95", [0.0, 0.0])
+            rr_str = f"{h['risk_ratio']:.3f} [{rr_ci[0]:.3f}, {rr_ci[1]:.3f}]" if h.get("risk_ratio") is not None else "N/A"
+            sig_str = "**YES** (p <= threshold)" if h["significant"] else f"No (p={h['raw_p']:.4f} > {h['threshold']:.4f})"
+            L.append(
+                f"| {h['hypothesis']} | {h['class']} | {h['pairs']} | "
+                f"{h['defense_off']['asr']:.3f} ({h['defense_off']['successes']}/{h['pairs']}) | "
+                f"{h['defense_on']['asr']:.3f} ({h['defense_on']['successes']}/{h['pairs']}) | "
+                f"{h['risk_difference']:+.3f} [{rd_ci[0]:+.3f}, {rd_ci[1]:+.3f}] | "
+                f"{rr_str} | {h['raw_p']:.6f} | {h['threshold']:.6f} | {sig_str} |"
+            )
+        L.append("")
+
     L.append("## Attack success rate (ASR) per class")
     L.append("")
     L.append("| class | ASR defense off | 95% CI | ASR defense on | 95% CI | "
@@ -891,13 +1210,47 @@ def write_markdown(summary: dict, path: Path) -> None:
             L.append(f"- false-positive rate: {b['false_positive_rate']:.3f} ({b['false_positives']}/{b['n']})")
             L.append("")
 
-    L.append("## XGate latency overhead")
-    L.append("")
-    lat = s["latency_ms"]
-    L.append(f"- mean per-call latency, defense off: {lat['defense_off_mean']:.3f} ms")
-    L.append(f"- mean per-call latency, defense on: {lat['defense_on_mean']:.3f} ms")
-    L.append(f"- mean overhead: {lat['overhead_mean']:.3f} ms")
-    L.append("")
+    if s.get("latency_distribution"):
+        ld = s["latency_distribution"]
+        d_off = ld["defense_off"]
+        d_on = ld["defense_on"]
+        ov = ld["overhead"]
+        L.append("## XGate latency distribution & bootstrap intervals (Phase 5)")
+        L.append("")
+        L.append("| Mode | Calls | Median (ms) | 95% Bootstrap CI | Mean (ms) | 95% Bootstrap CI | p95 (ms) | p99 (ms) |")
+        L.append("|---|---|---|---|---|---|---|---|")
+        L.append(
+            f"| Defense OFF | {d_off['count']} | {d_off['median']:.3f} | [{d_off['ci95_median'][0]:.3f}, {d_off['ci95_median'][1]:.3f}] | "
+            f"{d_off['mean']:.3f} | [{d_off['ci95_mean'][0]:.3f}, {d_off['ci95_mean'][1]:.3f}] | {d_off['p95']:.3f} | {d_off['p99']:.3f} |"
+        )
+        L.append(
+            f"| Defense ON | {d_on['count']} | {d_on['median']:.3f} | [{d_on['ci95_median'][0]:.3f}, {d_on['ci95_median'][1]:.3f}] | "
+            f"{d_on['mean']:.3f} | [{d_on['ci95_mean'][0]:.3f}, {d_on['ci95_mean'][1]:.3f}] | {d_on['p95']:.3f} | {d_on['p99']:.3f} |"
+        )
+        L.append(
+            f"| **Overhead** | - | **{ov['median_overhead_ms']:+.3f}** | - | **{ov['mean_overhead_ms']:+.3f}** | - | "
+            f"**{ov['p95_overhead_ms']:+.3f}** | **{ov['p99_overhead_ms']:+.3f}** |"
+        )
+        L.append("")
+    else:
+        L.append("## XGate latency overhead")
+        L.append("")
+        lat = s["latency_ms"]
+        L.append(f"- mean per-call latency, defense off: {lat['defense_off_mean']:.3f} ms")
+        L.append(f"- mean per-call latency, defense on: {lat['defense_on_mean']:.3f} ms")
+        L.append(f"- mean overhead: {lat['overhead_mean']:.3f} ms")
+        L.append("")
+
+    if s.get("exclusions"):
+        ex = s["exclusions"]
+        L.append("## Exclusion & provenance audit")
+        L.append(f"- Total trial observations: {ex['total_trials']}")
+        L.append(f"- Excluded trials: {ex['excluded_trials']}")
+        L.append(f"- Transport timeouts (>45s): {ex['timeouts']}")
+        L.append(f"- Fallbacks logged: {ex['fallbacks']}")
+        L.append(f"- Parser errors: {ex['parser_errors']}")
+        L.append("")
+
     path.write_text("\n".join(L) + "\n", encoding="utf-8")
 
 
@@ -921,11 +1274,20 @@ async def evaluate_suite(
     on = await run_mode(True, attack, benign, planner_cfg, n_trials)
 
     summary = build_summary(off, on, planner_cfg, n_trials, suite)
+    manifest = build_run_manifest(off, on, planner_cfg, n_trials, suite, summary)
+
     json_path = RESULTS / f"{out_prefix}.json"
     md_path = RESULTS / f"{out_prefix}.md"
+    manifest_path = RESULTS / "run_manifest.json"
+
     json_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
     write_markdown(summary, md_path)
-    print(f"\nwrote {json_path} and {md_path}", flush=True)
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    if out_prefix != "summary":
+        (RESULTS / f"run_manifest_{out_prefix}.json").write_text(
+            json.dumps(manifest, indent=2), encoding="utf-8"
+        )
+    print(f"\nwrote {json_path}, {md_path}, and {manifest_path}", flush=True)
 
     # Console summary
     print("\nclass | ASR off -> on (reduction)")

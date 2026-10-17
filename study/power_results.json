@@ -1,0 +1,60 @@
+{
+  "alpha": 0.05,
+  "hypotheses_count": 4,
+  "alpha_strictest_threshold": 0.0125,
+  "simulations_per_point": 500,
+  "power_grid": {
+    "1": {
+      "delta_0.50": 0.0,
+      "delta_0.70": 0.0,
+      "delta_0.80": 0.0,
+      "delta_0.90": 0.0,
+      "delta_1.00": 0.0
+    },
+    "2": {
+      "delta_0.50": 0.0,
+      "delta_0.70": 0.0,
+      "delta_0.80": 0.0,
+      "delta_0.90": 0.0,
+      "delta_1.00": 0.0
+    },
+    "3": {
+      "delta_0.50": 0.016,
+      "delta_0.70": 0.192,
+      "delta_0.80": 0.434,
+      "delta_0.90": 0.788,
+      "delta_1.00": 1.0
+    },
+    "5": {
+      "delta_0.50": 0.512,
+      "delta_0.70": 0.944,
+      "delta_0.80": 0.994,
+      "delta_0.90": 1.0,
+      "delta_1.00": 1.0
+    },
+    "10": {
+      "delta_0.50": 0.996,
+      "delta_0.70": 1.0,
+      "delta_0.80": 1.0,
+      "delta_0.90": 1.0,
+      "delta_1.00": 1.0
+    },
+    "15": {
+      "delta_0.50": 1.0,
+      "delta_0.70": 1.0,
+      "delta_0.80": 1.0,
+      "delta_0.90": 1.0,
+      "delta_1.00": 1.0
+    },
+    "20": {
+      "delta_0.50": 1.0,
+      "delta_0.70": 1.0,
+      "delta_0.80": 1.0,
+      "delta_0.90": 1.0,
+      "delta_1.00": 1.0
+    }
+  },
+  "target_effect_size": 0.8,
+  "power_target": 0.8,
+  "minimum_trials_for_80_pct_power": 5
+}

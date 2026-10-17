@@ -1,0 +1,27 @@
+{
+  "mode": "implement",
+  "objective": "Phase 5: Make evaluation statistically defensible with pre-registered protocol, simulation power analysis, run manifest, paired tests, and multiplicity correction",
+  "acceptance_criteria": [
+    "study/protocol.yaml freezes hypotheses (H1-H4), primary/secondary endpoints, models, temperatures, and exclusion rules before confirmatory evaluation",
+    "study/power.py implements simulation-based power analysis calculating required trials per scenario under target effect size and alpha=0.05 with multiplicity adjustment",
+    "src/xproto/stats.py implements Wilson CI, Newcombe Risk Difference CI, Risk Ratio CI, McNemar paired tests, Holm-Bonferroni multiplicity correction, and bootstrap latency percentiles (median, p95, p99)",
+    "results/run_manifest.json records git commit, scenario manifest hash, dependencies, seeds, model digests, timeouts, and per-observation execution provenance",
+    "src/xproto/eval.py reports raw k/n, effect sizes, risk difference, risk ratio, confidence intervals, and latency distributions rather than point estimates alone",
+    "tests/test_statistics.py verifies all statistical algorithms, effect size CIs, Holm-Bonferroni adjustments, and power simulation"
+  ],
+  "non_goals": [
+    "Do not implement Phase 6 AgentDojo and InjecAgent external benchmark adapters yet"
+  ],
+  "risk": "medium",
+  "budget": "deep",
+  "allowed_write_scope": [
+    "study/",
+    "src/xproto/stats.py",
+    "src/xproto/eval.py",
+    "tests/test_statistics.py",
+    "results/",
+    "README.md",
+    ".gravitas/"
+  ],
+  "verification": "impact"
+}

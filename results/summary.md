@@ -1,7 +1,7 @@
 # XProto-12 evaluation summary
 
 Suite: native | Planner: regex (regex-control)
-Trials per scenario: 1 | generated 2026-10-17 13:44:08
+Trials per scenario: 1 | generated 2026-10-17 14:02:45
 Model digests: regex-control-v1
 Fallbacks logged: 0 | Parser errors: 0
 
@@ -30,6 +30,17 @@ Fallbacks logged: 0 | Parser errors: 0
 | C-multi-hop-identity-loss | 1.000 | 1.000 | 1.000 | 0.000 | 1.000 |
 | D-unattested-agent-card | 1.000 | 0.000 | 1.000 | 0.000 | 0.000 |
 
+## Pre-registered confirmatory hypothesis testing (Phase 5)
+
+Protocol: [study/protocol.yaml](file:///d:/WORK/PROJECTS/XProto-12/study/protocol.yaml) | Family-wise error rate control: Holm-Bonferroni (alpha = 0.05)
+
+| Hypothesis | Attack class | Pairs | OFF ASR (k/N) | ON ASR (k/N) | Risk Difference (95% CI) | Risk Ratio (95% CI) | McNemar p | Holm threshold | Significant? |
+|---|---|---|---|---|---|---|---|---|---|
+| H1 | A-delegation-to-tool | 3 | 1.000 (3/3) | 0.000 (0/3) | +1.000 [+0.206, +1.000] | 0.143 [0.011, 1.859] | 0.250000 | 0.012500 | No (p=0.2500 > 0.0125) |
+| H2 | B-tool-to-delegation | 3 | 1.000 (3/3) | 0.000 (0/3) | +1.000 [+0.206, +1.000] | 0.143 [0.011, 1.859] | 0.250000 | 0.016667 | No (p=0.2500 > 0.0167) |
+| H3 | C-multi-hop-identity-loss | 3 | 1.000 (3/3) | 0.000 (0/3) | +1.000 [+0.206, +1.000] | 0.143 [0.011, 1.859] | 0.250000 | 0.025000 | No (p=0.2500 > 0.0250) |
+| H4 | D-unattested-agent-card | 3 | 1.000 (3/3) | 0.000 (0/3) | +1.000 [+0.206, +1.000] | 0.143 [0.011, 1.859] | 0.250000 | 0.050000 | No (p=0.2500 > 0.0500) |
+
 ## Attack success rate (ASR) per class
 
 | class | ASR defense off | 95% CI | ASR defense on | 95% CI | ASR reduction | bypass rate |
@@ -55,9 +66,18 @@ Fallbacks logged: 0 | Parser errors: 0
 | capability-routing | 2/2 | 1.000 | [0.342, 1.000] |
 | multi-hop | 2/2 | 1.000 | [0.342, 1.000] |
 
-## XGate latency overhead
+## XGate latency distribution & bootstrap intervals (Phase 5)
 
-- mean per-call latency, defense off: 6.853 ms
-- mean per-call latency, defense on: 5.282 ms
-- mean overhead: -1.571 ms
+| Mode | Calls | Median (ms) | 95% Bootstrap CI | Mean (ms) | 95% Bootstrap CI | p95 (ms) | p99 (ms) |
+|---|---|---|---|---|---|---|---|
+| Defense OFF | 25 | 5.490 | [5.190, 5.850] | 13.863 | [5.053, 30.128] | 11.708 | 159.786 |
+| Defense ON | 14 | 5.360 | [5.110, 5.555] | 5.246 | [4.886, 5.513] | 5.865 | 5.933 |
+| **Overhead** | - | **-0.130** | - | **-8.617** | - | **-5.843** | **-153.853** |
+
+## Exclusion & provenance audit
+- Total trial observations: 44
+- Excluded trials: 0
+- Transport timeouts (>45s): 0
+- Fallbacks logged: 0
+- Parser errors: 0
 
