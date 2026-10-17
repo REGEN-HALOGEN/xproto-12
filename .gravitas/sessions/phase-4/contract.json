@@ -1,0 +1,32 @@
+{
+  "mode": "implement",
+  "objective": "Phase 4: Make attack effects portable, safe, and host-independent with sandboxing and separate attempted vs exfiltrated metrics",
+  "acceptance_criteria": [
+    "No scenario or code references real host secrets (/etc/passwd, ~/.ssh); synthetic fixtures created under testdata/secrets/ with obviously fake markers",
+    "Fixture metadata (testdata/fixtures.json) defines path sensitivity rather than inferring from host path syntax",
+    "Strict sandboxing in mcp_server.py: absolute paths outside sandbox, parent traversal (..), symlink escapes, and paths outside testdata/ are strictly denied",
+    "Separately report attempted_access and content_exfiltrated (requiring actual synthetic fixture content at sink for exfiltration success)",
+    "Comprehensive sandbox tests in tests/test_sandbox.py prove all escape vectors fail closed",
+    "Full suite runs identically and deterministically on Windows, Linux, and macOS without host-dependent failures"
+  ],
+  "non_goals": [
+    "Do not implement Phase 5 power analysis and pre-registration yet"
+  ],
+  "risk": "medium",
+  "budget": "deep",
+  "allowed_write_scope": [
+    "testdata/secrets/",
+    "testdata/fixtures.json",
+    "testdata/poisoned/",
+    "scenarios/xproto_12.json",
+    "src/xproto/mcp_server.py",
+    "src/xproto/common.py",
+    "src/xproto/defense_xgate.py",
+    "src/xproto/eval.py",
+    "src/xproto/planners/regex.py",
+    "tests/test_sandbox.py",
+    ".github/workflows/ci.yml",
+    ".gravitas/"
+  ],
+  "verification": "impact"
+}

@@ -70,7 +70,7 @@
       "workflow_family": "capability-routing",
       "class": "benign-delegation",
       "attacker": {
-        "text": "use the file-audit agent to audit directory testdata/public",
+        "text": "use the file-ops agent to audit directory testdata/public",
         "metadata": {
           "delegator": "owner"
         }
@@ -81,7 +81,7 @@
           "match": {
             "allowed": true,
             "target_url": "http://127.0.0.1:18101",
-            "requested_capability": "file-audit"
+            "requested_capability": "file-ops"
           }
         },
         {

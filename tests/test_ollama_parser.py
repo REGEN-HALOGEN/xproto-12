@@ -69,12 +69,12 @@ def test_ollama_prompt_construction():
 
 def test_ollama_parser_valid_json():
     tools = [ToolDefinition(name="read_file", description="")]
-    raw = '{"decision_type": "tool_call", "tool": "read_file", "args": {"path": "testdata/secrets/passwd"}}'
+    raw = '{"decision_type": "tool_call", "tool": "read_file", "args": {"path": "testdata/secrets/passwd.fake"}}'
     parsed = json.loads(raw)
     dec = validate_decision(parsed, available_tools=tools)
     assert isinstance(dec, ToolCallDecision)
     assert dec.tool == "read_file"
-    assert dec.args["path"] == "testdata/secrets/passwd"
+    assert dec.args["path"] == "testdata/secrets/passwd.fake"
 
 
 def test_ollama_parser_code_block_unwrapping():

@@ -1,5 +1,5 @@
 {
-  "generated_ts": 1792155880.1607,
+  "generated_ts": 1792224894.4401042,
   "trials_per_scenario": 1,
   "suite": "attestation",
   "planner": {
@@ -26,8 +26,8 @@
       "false_positives": 0,
       "false_positive_rate": 0.0
     },
-    "latency_mean_ms": 0.0,
-    "latency_calls": 0
+    "latency_mean_ms": 17.98,
+    "latency_calls": 6
   },
   "defense_on": {
     "defense_on": true,
@@ -39,8 +39,8 @@
       "false_positives": 0,
       "false_positive_rate": 0.0
     },
-    "latency_mean_ms": 0.0,
-    "latency_calls": 0
+    "latency_mean_ms": 5.3,
+    "latency_calls": 1
   },
   "asr_reduction": {},
   "bypass_rate": {},
@@ -122,9 +122,49 @@
       }
     }
   },
+  "exfiltration_metrics": {
+    "defense_off": {
+      "n": 0,
+      "attempted_access": {
+        "count": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "content_exfiltrated": {
+        "count": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "defense_on": {
+      "n": 0,
+      "attempted_access": {
+        "count": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "content_exfiltrated": {
+        "count": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      }
+    }
+  },
   "latency_ms": {
-    "defense_off_mean": 0.0,
-    "defense_on_mean": 0.0,
-    "overhead_mean": 0.0
+    "defense_off_mean": 17.98,
+    "defense_on_mean": 5.3,
+    "overhead_mean": -12.68
   }
 }

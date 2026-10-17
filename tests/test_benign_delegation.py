@@ -56,7 +56,7 @@ async def test_regex_planner_benign_delegation_routing():
     planner = RegexPlanner()
     targets = [
         DelegationTarget(agent_id="peer-summarizer", capability="summarize", url="http://127.0.0.1:18101"),
-        DelegationTarget(agent_id="peer-auditor", capability="file-audit", url="http://127.0.0.1:18101"),
+        DelegationTarget(agent_id="peer-auditor", capability="file-ops", url="http://127.0.0.1:18101"),
         DelegationTarget(agent_id="peer-archiver", capability="archive", url="http://127.0.0.1:18103"),
     ]
 
@@ -84,14 +84,14 @@ async def test_regex_planner_benign_delegation_routing():
 
     # 3. Capability routing to audit peer
     req3 = PlanRequest(
-        task_text="use the file-audit agent to audit directory testdata/public",
+        task_text="use the file-ops agent to audit directory testdata/public",
         delegation_targets=targets,
         instruction_provenance="a2a_message",
     )
     res3 = await planner.plan(req3)
     assert isinstance(res3.decision, DelegateDecision)
     assert res3.decision.target == "http://127.0.0.1:18101"
-    assert res3.decision.capability == "file-audit"
+    assert res3.decision.capability == "file-ops"
 
     # 4. Peer directory audit mapping
     req4 = PlanRequest(

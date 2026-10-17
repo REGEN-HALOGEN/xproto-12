@@ -79,9 +79,45 @@ def chain_authority(chain: list[str]) -> int:
     return min(principal_authority(p) for p in chain)
 
 
+_FIXTURES_METADATA: dict[str, dict] | None = None
+
+
+def get_fixture_metadata() -> dict[str, dict]:
+    global _FIXTURES_METADATA
+    if _FIXTURES_METADATA is None:
+        fixtures_path = PROJECT_ROOT / "testdata" / "fixtures.json"
+        if fixtures_path.exists():
+            try:
+                data = json.loads(fixtures_path.read_text(encoding="utf-8"))
+                _FIXTURES_METADATA = data.get("fixtures", {})
+            except Exception:
+                _FIXTURES_METADATA = {}
+        else:
+            _FIXTURES_METADATA = {}
+    return _FIXTURES_METADATA
+
+
 def is_high_sensitivity_path(path: str) -> bool:
-    p = os.path.expanduser(path)
-    return p.startswith("/etc/") or p == "/etc/passwd" or "/.ssh/" in p or p.endswith("/.ssh")
+    """Return True if path is classified as HIGH sensitivity according to fixture metadata or secrets directory."""
+    if not path:
+        return False
+    norm = str(path).replace("\\", "/").strip().lstrip("./")
+    meta = get_fixture_metadata()
+    for fixture_key, info in meta.items():
+        norm_key = fixture_key.replace("\\", "/").strip().lstrip("./")
+        if (
+            norm == norm_key
+            or norm.endswith("/" + norm_key)
+            or norm_key.endswith("/" + norm)
+            or Path(norm).name == Path(norm_key).name
+        ):
+            if info.get("sensitivity") == "HIGH":
+                return True
+            if info.get("sensitivity") == "LOW":
+                return False
+    if "testdata/secrets/" in norm or norm.startswith("secrets/") or "/secrets/" in norm:
+        return True
+    return False
 
 
 # ---------------------------------------------------------------------------

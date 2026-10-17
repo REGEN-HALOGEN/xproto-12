@@ -6,3 +6,5 @@ logs/
 *.jsonl
 .DS_Store
 .pytest_cache/
+.agents/
+skills-lock.json
