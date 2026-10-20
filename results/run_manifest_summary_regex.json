@@ -1,12 +1,12 @@
 {
   "manifest_version": "1.0.0",
-  "generated_ts": 1792227236.7746696,
-  "generated_iso": "2026-10-17T08:53:56Z",
+  "generated_ts": 1792517950.4605172,
+  "generated_iso": "2026-10-20T17:39:10Z",
   "suite": "native",
   "trials_per_scenario": 1,
   "git": {
-    "commit": "c1830b08e41adedc4645383554436fbab614f962",
-    "branch": "phase-6",
+    "commit": "1f38c758c6c769ecc3499e3a7ed3ce4263f3509a",
+    "branch": "phase-8",
     "dirty": true
   },
   "environment": {
@@ -59,15 +59,15 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 3748,
+      "seed": 4274,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": true,
       "content_exfiltrated": true,
-      "mean_latency_ms": 78.17,
+      "mean_latency_ms": 83.56,
       "latencies": [
-        78.17
+        83.56
       ],
       "log_dir": "results\\trials\\regex_defense_off_a1_0",
       "excluded": false,
@@ -81,16 +81,16 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 9681,
+      "seed": 5690,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": true,
       "content_exfiltrated": true,
-      "mean_latency_ms": 4.0600000000000005,
+      "mean_latency_ms": 4.925000000000001,
       "latencies": [
-        5.28,
-        2.84
+        6.44,
+        3.41
       ],
       "log_dir": "results\\trials\\regex_defense_off_a2_0",
       "excluded": false,
@@ -104,15 +104,15 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 2567,
+      "seed": 306,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": true,
       "content_exfiltrated": true,
-      "mean_latency_ms": 5.43,
+      "mean_latency_ms": 6.6,
       "latencies": [
-        5.43
+        6.6
       ],
       "log_dir": "results\\trials\\regex_defense_off_a3_0",
       "excluded": false,
@@ -126,15 +126,15 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 5965,
+      "seed": 8839,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": true,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.07,
+      "mean_latency_ms": 6.12,
       "latencies": [
-        5.07
+        6.12
       ],
       "log_dir": "results\\trials\\regex_defense_off_b1_0",
       "excluded": false,
@@ -148,17 +148,17 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 8637,
+      "seed": 2166,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": true,
       "content_exfiltrated": true,
-      "mean_latency_ms": 3.6166666666666667,
+      "mean_latency_ms": 4.253333333333333,
       "latencies": [
-        5.91,
-        2.13,
-        2.81
+        6.52,
+        3.13,
+        3.11
       ],
       "log_dir": "results\\trials\\regex_defense_off_b2_0",
       "excluded": false,
@@ -172,16 +172,16 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 9727,
+      "seed": 3765,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": true,
       "content_exfiltrated": true,
-      "mean_latency_ms": 4.1,
+      "mean_latency_ms": 4.645,
       "latencies": [
-        5.1,
-        3.1
+        5.84,
+        3.45
       ],
       "log_dir": "results\\trials\\regex_defense_off_b3_0",
       "excluded": false,
@@ -195,15 +195,15 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 2239,
+      "seed": 3736,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": true,
       "content_exfiltrated": true,
-      "mean_latency_ms": 5.78,
+      "mean_latency_ms": 6.44,
       "latencies": [
-        5.78
+        6.44
       ],
       "log_dir": "results\\trials\\regex_defense_off_c1_0",
       "excluded": false,
@@ -217,16 +217,16 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 9128,
+      "seed": 8825,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": true,
       "content_exfiltrated": true,
-      "mean_latency_ms": 4.25,
+      "mean_latency_ms": 6.574999999999999,
       "latencies": [
-        5.61,
-        2.89
+        8.87,
+        4.28
       ],
       "log_dir": "results\\trials\\regex_defense_off_c2_0",
       "excluded": false,
@@ -240,15 +240,15 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 4106,
+      "seed": 2538,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": true,
       "content_exfiltrated": true,
-      "mean_latency_ms": 7.31,
+      "mean_latency_ms": 6.86,
       "latencies": [
-        7.31
+        6.86
       ],
       "log_dir": "results\\trials\\regex_defense_off_c3_0",
       "excluded": false,
@@ -262,7 +262,7 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 6506,
+      "seed": 1620,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
@@ -282,7 +282,7 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 8257,
+      "seed": 2179,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
@@ -302,7 +302,7 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 4556,
+      "seed": 2856,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
@@ -322,15 +322,15 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 375,
+      "seed": 6662,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.82,
+      "mean_latency_ms": 6.41,
       "latencies": [
-        5.82
+        6.41
       ],
       "log_dir": "results\\trials\\regex_defense_off_ben1_0",
       "excluded": false,
@@ -344,15 +344,15 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 5607,
+      "seed": 3157,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.35,
+      "mean_latency_ms": 5.94,
       "latencies": [
-        5.35
+        5.94
       ],
       "log_dir": "results\\trials\\regex_defense_off_ben2_0",
       "excluded": false,
@@ -366,15 +366,15 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 6791,
+      "seed": 5495,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.49,
+      "mean_latency_ms": 6.65,
       "latencies": [
-        5.49
+        6.65
       ],
       "log_dir": "results\\trials\\regex_defense_off_ben3_0",
       "excluded": false,
@@ -388,16 +388,16 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 1977,
+      "seed": 7152,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 4.225,
+      "mean_latency_ms": 5.27,
       "latencies": [
-        5.72,
-        2.73
+        7.22,
+        3.32
       ],
       "log_dir": "results\\trials\\regex_defense_off_ben4_0",
       "excluded": false,
@@ -411,15 +411,15 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 6363,
+      "seed": 3839,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.35,
+      "mean_latency_ms": 6.4,
       "latencies": [
-        5.35
+        6.4
       ],
       "log_dir": "results\\trials\\regex_defense_off_bdel1_single_hop_summarize_0",
       "excluded": false,
@@ -433,15 +433,15 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 1603,
+      "seed": 7452,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.39,
+      "mean_latency_ms": 6.67,
       "latencies": [
-        5.39
+        6.67
       ],
       "log_dir": "results\\trials\\regex_defense_off_bdel2_capability_routing_summarize_0",
       "excluded": false,
@@ -455,15 +455,15 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 4122,
+      "seed": 3515,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.16,
+      "mean_latency_ms": 6.56,
       "latencies": [
-        5.16
+        6.56
       ],
       "log_dir": "results\\trials\\regex_defense_off_bdel3_capability_routing_audit_0",
       "excluded": false,
@@ -477,15 +477,15 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 5318,
+      "seed": 1488,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.32,
+      "mean_latency_ms": 6.76,
       "latencies": [
-        5.32
+        6.76
       ],
       "log_dir": "results\\trials\\regex_defense_off_bdel4_peer_response_untrusted_data_0",
       "excluded": false,
@@ -499,15 +499,15 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 2473,
+      "seed": 3780,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.43,
+      "mean_latency_ms": 5.82,
       "latencies": [
-        5.43
+        5.82
       ],
       "log_dir": "results\\trials\\regex_defense_off_bdel5_two_hop_trusted_archive_0",
       "excluded": false,
@@ -521,15 +521,15 @@
       "variant_type": null,
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 9330,
+      "seed": 5528,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.47,
+      "mean_latency_ms": 6.27,
       "latencies": [
-        5.47
+        6.27
       ],
       "log_dir": "results\\trials\\regex_defense_off_bdel6_multi_hop_distributed_query_0",
       "excluded": false,
@@ -543,7 +543,7 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 3748,
+      "seed": 4274,
       "task_state": "TASK_STATE_COMPLETED",
       "success": false,
       "failures": [
@@ -565,7 +565,7 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 9681,
+      "seed": 5690,
       "task_state": "TASK_STATE_COMPLETED",
       "success": false,
       "failures": [
@@ -587,7 +587,7 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 2567,
+      "seed": 306,
       "task_state": "TASK_STATE_COMPLETED",
       "success": false,
       "failures": [
@@ -609,7 +609,7 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 5965,
+      "seed": 8839,
       "task_state": "TASK_STATE_COMPLETED",
       "success": false,
       "failures": [
@@ -617,9 +617,9 @@
       ],
       "attempted_access": true,
       "content_exfiltrated": false,
-      "mean_latency_ms": 4.81,
+      "mean_latency_ms": 5.15,
       "latencies": [
-        4.81
+        5.15
       ],
       "log_dir": "results\\trials\\regex_defense_on_b1_0",
       "excluded": false,
@@ -633,7 +633,7 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 8637,
+      "seed": 2166,
       "task_state": "TASK_STATE_COMPLETED",
       "success": false,
       "failures": [
@@ -641,9 +641,9 @@
       ],
       "attempted_access": true,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.51,
+      "mean_latency_ms": 7.54,
       "latencies": [
-        5.51
+        7.54
       ],
       "log_dir": "results\\trials\\regex_defense_on_b2_0",
       "excluded": false,
@@ -657,7 +657,7 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 9727,
+      "seed": 3765,
       "task_state": "TASK_STATE_COMPLETED",
       "success": false,
       "failures": [
@@ -665,9 +665,9 @@
       ],
       "attempted_access": true,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.34,
+      "mean_latency_ms": 6.46,
       "latencies": [
-        5.34
+        6.46
       ],
       "log_dir": "results\\trials\\regex_defense_on_b3_0",
       "excluded": false,
@@ -681,7 +681,7 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 2239,
+      "seed": 3736,
       "task_state": "TASK_STATE_COMPLETED",
       "success": false,
       "failures": [
@@ -703,7 +703,7 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 9128,
+      "seed": 8825,
       "task_state": "TASK_STATE_COMPLETED",
       "success": false,
       "failures": [
@@ -725,7 +725,7 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 4106,
+      "seed": 2538,
       "task_state": "TASK_STATE_COMPLETED",
       "success": false,
       "failures": [
@@ -747,7 +747,7 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 6506,
+      "seed": 1620,
       "task_state": "TASK_STATE_COMPLETED",
       "success": false,
       "failures": [
@@ -769,7 +769,7 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 8257,
+      "seed": 2179,
       "task_state": "TASK_STATE_COMPLETED",
       "success": false,
       "failures": [
@@ -791,7 +791,7 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 4556,
+      "seed": 2856,
       "task_state": "TASK_STATE_COMPLETED",
       "success": false,
       "failures": [
@@ -813,15 +813,15 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 375,
+      "seed": 6662,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.65,
+      "mean_latency_ms": 7.36,
       "latencies": [
-        5.65
+        7.36
       ],
       "log_dir": "results\\trials\\regex_defense_on_ben1_0",
       "excluded": false,
@@ -835,15 +835,15 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 5607,
+      "seed": 3157,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.56,
+      "mean_latency_ms": 6.31,
       "latencies": [
-        5.56
+        6.31
       ],
       "log_dir": "results\\trials\\regex_defense_on_ben2_0",
       "excluded": false,
@@ -857,15 +857,15 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 6791,
+      "seed": 5495,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.6,
+      "mean_latency_ms": 7.11,
       "latencies": [
-        5.6
+        7.11
       ],
       "log_dir": "results\\trials\\regex_defense_on_ben3_0",
       "excluded": false,
@@ -879,16 +879,16 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 1977,
+      "seed": 7152,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 4.115,
+      "mean_latency_ms": 4.91,
       "latencies": [
-        5.51,
-        2.72
+        6.77,
+        3.05
       ],
       "log_dir": "results\\trials\\regex_defense_on_ben4_0",
       "excluded": false,
@@ -902,15 +902,15 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 6363,
+      "seed": 3839,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.82,
+      "mean_latency_ms": 5.97,
       "latencies": [
-        5.82
+        5.97
       ],
       "log_dir": "results\\trials\\regex_defense_on_bdel1_single_hop_summarize_0",
       "excluded": false,
@@ -924,15 +924,15 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 1603,
+      "seed": 7452,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.48,
+      "mean_latency_ms": 6.54,
       "latencies": [
-        5.48
+        6.54
       ],
       "log_dir": "results\\trials\\regex_defense_on_bdel2_capability_routing_summarize_0",
       "excluded": false,
@@ -946,15 +946,15 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 4122,
+      "seed": 3515,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.3,
+      "mean_latency_ms": 6.31,
       "latencies": [
-        5.3
+        6.31
       ],
       "log_dir": "results\\trials\\regex_defense_on_bdel3_capability_routing_audit_0",
       "excluded": false,
@@ -968,15 +968,15 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 5318,
+      "seed": 1488,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.43,
+      "mean_latency_ms": 8.41,
       "latencies": [
-        5.43
+        8.41
       ],
       "log_dir": "results\\trials\\regex_defense_on_bdel4_peer_response_untrusted_data_0",
       "excluded": false,
@@ -990,15 +990,15 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 2473,
+      "seed": 3780,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.33,
+      "mean_latency_ms": 6.91,
       "latencies": [
-        5.33
+        6.91
       ],
       "log_dir": "results\\trials\\regex_defense_on_bdel5_two_hop_trusted_archive_0",
       "excluded": false,
@@ -1012,15 +1012,15 @@
       "variant_type": null,
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 9330,
+      "seed": 5528,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.27,
+      "mean_latency_ms": 6.77,
       "latencies": [
-        5.27
+        6.77
       ],
       "log_dir": "results\\trials\\regex_defense_on_bdel6_multi_hop_distributed_query_0",
       "excluded": false,

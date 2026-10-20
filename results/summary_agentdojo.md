@@ -1,7 +1,7 @@
 # XProto-12 evaluation summary
 
 Suite: agentdojo | Planner: regex (regex-control)
-Trials per scenario: 1 | generated 2026-10-17 14:24:30
+Trials per scenario: 1 | generated 2026-10-20 23:09:45
 Model digests: regex-control-v1
 Fallbacks logged: 0 | Parser errors: 0
 
@@ -61,9 +61,9 @@ Protocol: [study/protocol.yaml](file:///d:/WORK/PROJECTS/XProto-12/study/protoco
 
 | Mode | Calls | Median (ms) | 95% Bootstrap CI | Mean (ms) | 95% Bootstrap CI | p95 (ms) | p99 (ms) |
 |---|---|---|---|---|---|---|---|
-| Defense OFF | 18 | 5.095 | [2.805, 5.695] | 4.506 | [3.755, 5.204] | 6.702 | 6.804 |
-| Defense ON | 11 | 5.930 | [5.500, 6.540] | 6.080 | [5.110, 7.008] | 8.730 | 9.274 |
-| **Overhead** | - | **+0.835** | - | **+1.574** | - | **+2.028** | **+2.470** |
+| Defense OFF | 18 | 5.680 | [3.605, 6.285] | 5.013 | [4.214, 5.753] | 6.894 | 7.459 |
+| Defense ON | 11 | 6.360 | [6.100, 6.980] | 6.230 | [5.447, 6.910] | 7.640 | 8.096 |
+| **Overhead** | - | **+0.680** | - | **+1.217** | - | **+0.746** | **+0.637** |
 
 ## Exclusion & provenance audit
 - Total trial observations: 20

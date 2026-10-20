@@ -1,0 +1,61 @@
+name: Artifact Reproduction & Paper Assets
+
+on:
+  push:
+    branches: [main, master, "phase-*"]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  artifact-reproduce:
+    name: Reproduce Artifact (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.12"]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install dependencies from lockfile
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.lock
+
+      - name: Run verification test suite
+        run: |
+          pytest -v
+
+      - name: Run artifact reproduction pipeline
+        shell: bash
+        run: |
+          ./artifact/run.sh
+
+      - name: Verify paper assets exist and are non-empty
+        shell: bash
+        run: |
+          test -s paper/tables/table1_main_results.tex
+          test -s paper/tables/table2_external_benchmarks.tex
+          test -s paper/tables/table3_delegation_metrics.tex
+          test -s paper/tables/table4_component_latency.tex
+          test -s paper/figures/figure1_architecture.svg
+
+      - name: Upload paper assets & reproduction artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper-assets-${{ matrix.os }}
+          path: |
+            paper/tables/*
+            paper/figures/*
+            results/summary_*.json
+            results/mechanism_comparison.md
+            results/load_profile.md

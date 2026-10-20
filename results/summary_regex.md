@@ -1,7 +1,7 @@
 # XProto-12 evaluation summary
 
 Suite: native | Planner: regex (regex-control)
-Trials per scenario: 1 | generated 2026-10-17 14:23:56
+Trials per scenario: 1 | generated 2026-10-20 23:09:10
 Model digests: regex-control-v1
 Fallbacks logged: 0 | Parser errors: 0
 
@@ -70,9 +70,9 @@ Protocol: [study/protocol.yaml](file:///d:/WORK/PROJECTS/XProto-12/study/protoco
 
 | Mode | Calls | Median (ms) | 95% Bootstrap CI | Mean (ms) | 95% Bootstrap CI | p95 (ms) | p99 (ms) |
 |---|---|---|---|---|---|---|---|
-| Defense OFF | 25 | 5.350 | [5.160, 5.470] | 7.786 | [4.448, 13.789] | 7.030 | 61.164 |
-| Defense ON | 14 | 5.455 | [5.300, 5.535] | 5.238 | [4.794, 5.521] | 5.710 | 5.798 |
-| **Overhead** | - | **+0.105** | - | **-2.548** | - | **-1.320** | **-55.366** |
+| Defense OFF | 25 | 6.410 | [5.840, 6.600] | 8.906 | [5.364, 15.294] | 8.540 | 65.634 |
+| Defense ON | 14 | 6.655 | [6.310, 7.110] | 6.476 | [5.776, 7.077] | 7.845 | 8.297 |
+| **Overhead** | - | **+0.245** | - | **-2.430** | - | **-0.695** | **-57.337** |
 
 ## Exclusion & provenance audit
 - Total trial observations: 44

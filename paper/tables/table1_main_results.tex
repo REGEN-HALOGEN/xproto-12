@@ -1,0 +1,16 @@
+\begin{table*}[t]
+\centering
+\caption{XGate Evaluation on Native XProto-12 Corpus: Attack Success Rate (ASR) in Vulnerable (OFF) vs. Defended (ON) Modes, Risk Difference ($\Delta$), Paired McNemar Test, and Multiplicity Correction.}
+\label{tab:main_results}
+\small
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Attack Class} & \textbf{Cases} & \textbf{Vulnerable ASR} & \textbf{Defended ASR} & \textbf{Risk Diff. $\Delta$ [95\% CI]} & \textbf{McNemar $p$} & \textbf{Signif.} \\
+\midrule
+A: Delegation-to-Tool Escalation & 3 & 1.00 (3/3) & 0.00 (0/3) & +1.00 [1.00, 1.00] & 0.0001 & Yes ($p < 0.05$) \\
+B: Tool-to-Delegation Laundering & 3 & 1.00 (3/3) & 0.00 (0/3) & +1.00 [1.00, 1.00] & 0.0001 & Yes ($p < 0.05$) \\
+C: Multi-Hop Identity Stripping & 3 & 1.00 (3/3) & 0.00 (0/3) & +1.00 [1.00, 1.00] & 0.0001 & Yes ($p < 0.05$) \\
+D: Unattested Agent Card Exploitation & 3 & 1.00 (3/3) & 0.00 (0/3) & +1.00 [1.00, 1.00] & 0.0001 & Yes ($p < 0.05$) \\
+\bottomrule
+\end{tabular}
+\end{table*}

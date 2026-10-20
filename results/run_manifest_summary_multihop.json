@@ -1,12 +1,12 @@
 {
   "manifest_version": "1.0.0",
-  "generated_ts": 1792517259.7019477,
-  "generated_iso": "2026-10-20T17:27:39Z",
+  "generated_ts": 1792518048.3934417,
+  "generated_iso": "2026-10-20T17:40:48Z",
   "suite": "multihop",
   "trials_per_scenario": 1,
   "git": {
-    "commit": "0fb252c85344b053e0cdd32e1a9b390c82b82125",
-    "branch": "phase-7",
+    "commit": "1f38c758c6c769ecc3499e3a7ed3ce4263f3509a",
+    "branch": "phase-8",
     "dirty": true
   },
   "environment": {
@@ -59,15 +59,15 @@
       "variant_type": "malicious",
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 2193,
+      "seed": 2245,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": true,
       "content_exfiltrated": true,
-      "mean_latency_ms": 284.45,
+      "mean_latency_ms": 86.23,
       "latencies": [
-        284.45
+        86.23
       ],
       "log_dir": "results\\trials\\regex_defense_off_multihop_depth_3_exfil_attack_0",
       "excluded": false,
@@ -81,7 +81,7 @@
       "variant_type": "negative",
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 6163,
+      "seed": 67,
       "task_state": "TASK_STATE_COMPLETED",
       "success": false,
       "failures": [
@@ -103,7 +103,7 @@
       "variant_type": "malicious",
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 7408,
+      "seed": 9283,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
@@ -123,15 +123,15 @@
       "variant_type": "legitimate",
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 696,
+      "seed": 9397,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 6.96,
+      "mean_latency_ms": 6.24,
       "latencies": [
-        6.96
+        6.24
       ],
       "log_dir": "results\\trials\\regex_defense_off_multihop_depth_1_benign_0",
       "excluded": false,
@@ -145,15 +145,15 @@
       "variant_type": "legitimate",
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 5267,
+      "seed": 1010,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 5.68,
+      "mean_latency_ms": 6.8,
       "latencies": [
-        5.68
+        6.8
       ],
       "log_dir": "results\\trials\\regex_defense_off_multihop_depth_2_forward_0",
       "excluded": false,
@@ -167,15 +167,15 @@
       "variant_type": "legitimate",
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 7651,
+      "seed": 4114,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 6.56,
+      "mean_latency_ms": 5.73,
       "latencies": [
-        6.56
+        5.73
       ],
       "log_dir": "results\\trials\\regex_defense_off_multihop_depth_5_extended_chain_0",
       "excluded": false,
@@ -189,7 +189,7 @@
       "variant_type": "legitimate",
       "defense_on": false,
       "trial_idx": 0,
-      "seed": 4732,
+      "seed": 3258,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
@@ -209,7 +209,7 @@
       "variant_type": "malicious",
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 2193,
+      "seed": 2245,
       "task_state": "TASK_STATE_COMPLETED",
       "success": false,
       "failures": [
@@ -231,7 +231,7 @@
       "variant_type": "negative",
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 6163,
+      "seed": 67,
       "task_state": "TASK_STATE_COMPLETED",
       "success": false,
       "failures": [
@@ -253,7 +253,7 @@
       "variant_type": "malicious",
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 7408,
+      "seed": 9283,
       "task_state": "TASK_STATE_COMPLETED",
       "success": false,
       "failures": [
@@ -275,15 +275,15 @@
       "variant_type": "legitimate",
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 696,
+      "seed": 9397,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 6.04,
+      "mean_latency_ms": 6.51,
       "latencies": [
-        6.04
+        6.51
       ],
       "log_dir": "results\\trials\\regex_defense_on_multihop_depth_1_benign_0",
       "excluded": false,
@@ -297,15 +297,15 @@
       "variant_type": "legitimate",
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 5267,
+      "seed": 1010,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 8.1,
+      "mean_latency_ms": 6.69,
       "latencies": [
-        8.1
+        6.69
       ],
       "log_dir": "results\\trials\\regex_defense_on_multihop_depth_2_forward_0",
       "excluded": false,
@@ -319,15 +319,15 @@
       "variant_type": "legitimate",
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 7651,
+      "seed": 4114,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],
       "attempted_access": false,
       "content_exfiltrated": false,
-      "mean_latency_ms": 6.34,
+      "mean_latency_ms": 6.19,
       "latencies": [
-        6.34
+        6.19
       ],
       "log_dir": "results\\trials\\regex_defense_on_multihop_depth_5_extended_chain_0",
       "excluded": false,
@@ -341,7 +341,7 @@
       "variant_type": "legitimate",
       "defense_on": true,
       "trial_idx": 0,
-      "seed": 4732,
+      "seed": 3258,
       "task_state": "TASK_STATE_COMPLETED",
       "success": true,
       "failures": [],

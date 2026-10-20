@@ -1,0 +1,32 @@
+{
+  "mode": "implement",
+  "objective": "Phase 8: Package a reviewer-ready artifact and reproducible paper asset pipeline",
+  "acceptance_criteria": [
+    "requirements.lock freezes exact pinned versions of all dependencies",
+    "CITATION.cff provides standard citation metadata for the artifact and paper",
+    "scripts/build_paper_assets.py generates publication-ready LaTeX tables (table1_main_results.tex, table2_external_benchmarks.tex, table3_delegation_metrics.tex, table4_component_latency.tex) and figures in paper/ from machine-generated summaries with input integrity validation",
+    "artifact/README.md and artifact/INSTALL.md provide a comprehensive reviewer guide covering prerequisites, model setup, output layout, execution times, safety guarantees, and troubleshooting",
+    "artifact/run.sh and artifact/run.ps1 provide one-command reproduction verifying dependencies, running tests, executing evaluation profiles, and generating paper assets",
+    "artifact/expected/ stores golden reference summaries for automated comparison",
+    "scripts/reproduce.sh and scripts/reproduce.ps1 provide top-level reproduction entrypoints",
+    ".github/workflows/artifact.yml defines multi-platform CI verification"
+  ],
+  "non_goals": [
+    "Do not modify frozen evaluation semantics or security properties established in phases 1-7"
+  ],
+  "risk": "low",
+  "budget": "standard",
+  "allowed_write_scope": [
+    "requirements.lock",
+    "CITATION.cff",
+    "scripts/build_paper_assets.py",
+    "scripts/reproduce.sh",
+    "scripts/reproduce.ps1",
+    "artifact/",
+    "paper/",
+    ".github/workflows/artifact.yml",
+    "README.md",
+    ".gravitas/"
+  ],
+  "verification": "impact"
+}

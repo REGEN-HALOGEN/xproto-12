@@ -1,7 +1,7 @@
 # XProto-12 evaluation summary
 
 Suite: payload_diversity | Planner: regex (regex-control)
-Trials per scenario: 1 | generated 2026-10-20 23:01:16
+Trials per scenario: 1 | generated 2026-10-20 23:11:30
 Model digests: regex-control-v1
 Fallbacks logged: 0 | Parser errors: 0
 
@@ -76,9 +76,9 @@ Protocol: [study/protocol.yaml](file:///d:/WORK/PROJECTS/XProto-12/study/protoco
 
 | Mode | Calls | Median (ms) | 95% Bootstrap CI | Mean (ms) | 95% Bootstrap CI | p95 (ms) | p99 (ms) |
 |---|---|---|---|---|---|---|---|
-| Defense OFF | 20 | 5.825 | [3.315, 6.020] | 7.583 | [4.168, 13.508] | 9.610 | 51.706 |
-| Defense ON | 6 | 5.915 | [4.465, 6.660] | 5.680 | [4.532, 6.475] | 6.895 | 7.083 |
-| **Overhead** | - | **+0.090** | - | **-1.903** | - | **-2.715** | **-44.623** |
+| Defense OFF | 20 | 5.695 | [3.775, 6.380] | 8.396 | [4.667, 14.828] | 11.421 | 56.420 |
+| Defense ON | 6 | 6.410 | [4.820, 6.980] | 6.070 | [4.927, 6.877] | 7.160 | 7.304 |
+| **Overhead** | - | **+0.715** | - | **-2.326** | - | **-4.261** | **-49.116** |
 
 ## Exclusion & provenance audit
 - Total trial observations: 24

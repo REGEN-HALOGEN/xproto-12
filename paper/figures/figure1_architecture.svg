@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 360" width="100%" height="100%">
+  <defs>
+    <style>
+      .box { fill: #f8fafc; stroke: #334155; stroke-width: 2; rx: 8; }
+      .defense-box { fill: #eff6ff; stroke: #2563eb; stroke-width: 2.5; rx: 8; }
+      .attacker-box { fill: #fef2f2; stroke: #dc2626; stroke-width: 2; rx: 8; }
+      .title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 15px; font-weight: bold; fill: #0f172a; }
+      .sub { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 12px; fill: #475569; }
+      .arrow { stroke: #475569; stroke-width: 2; marker-end: url(#arrowhead); }
+      .boundary { stroke: #94a3b8; stroke-width: 1.5; stroke-dasharray: 6,4; }
+    </style>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#475569" />
+    </marker>
+  </defs>
+
+  <!-- Boundaries -->
+  <line x1="300" y1="20" x2="300" y2="340" class="boundary" />
+  <line x1="610" y1="20" x2="610" y2="340" class="boundary" />
+  <text x="140" y="35" class="sub" font-weight="bold">A2A CLIENT / NETWORK</text>
+  <text x="410" y="35" class="sub" font-weight="bold">DUAL-PROTOCOL AGENT</text>
+  <text x="710" y="35" class="sub" font-weight="bold">MCP TOOL SERVER (STDIO)</text>
+
+  <!-- Attacker -->
+  <rect x="40" y="70" width="220" height="90" class="attacker-box" />
+  <text x="60" y="105" class="title">A2A Attacker Client</text>
+  <text x="60" y="128" class="sub">Crafted task + chain claims</text>
+  <text x="60" y="145" class="sub">Principal: remote:attacker</text>
+
+  <!-- Malicious Relay -->
+  <rect x="40" y="210" width="220" height="90" class="attacker-box" />
+  <text x="60" y="245" class="title">Shadow Relay / Sink</text>
+  <text x="60" y="268" class="sub">Unattested Agent Card</text>
+  <text x="60" y="285" class="sub">Exfiltration Logger</text>
+
+  <!-- Victim Agent -->
+  <rect x="330" y="70" width="250" height="120" class="box" />
+  <text x="350" y="105" class="title">Dual-Protocol Victim</text>
+  <text x="350" y="128" class="sub">A2A Server + Planner</text>
+  <text x="350" y="148" class="sub">Honest Provenance Tracker</text>
+  <text x="350" y="168" class="sub">Weakest-Link Principal Chain</text>
+
+  <!-- XGate Proxy -->
+  <rect x="330" y="220" width="250" height="90" class="defense-box" />
+  <text x="350" y="255" class="title">XGate Defense Proxy</text>
+  <text x="350" y="278" class="sub">Attestation Registry Lookup</text>
+  <text x="350" y="295" class="sub">Anti-Laundering Enforcement</text>
+
+  <!-- MCP Tools -->
+  <rect x="640" y="70" width="220" height="230" class="box" />
+  <text x="660" y="105" class="title">Sandboxed MCP Server</text>
+  <text x="660" y="130" class="sub">read_file (HIGH / LOW)</text>
+  <text x="660" y="155" class="sub">list_directory (LOW)</text>
+  <text x="660" y="180" class="sub">send_email (MEDIUM)</text>
+  <text x="660" y="205" class="sub">search_web (LOW)</text>
+  <text x="660" y="245" class="sub" font-style="italic">Strict boundary: testdata/</text>
+  <text x="660" y="265" class="sub" font-style="italic">Synthetic test fixtures</text>
+
+  <!-- Arrows -->
+  <line x1="260" y1="115" x2="330" y2="115" class="arrow" />
+  <line x1="455" y1="190" x2="455" y2="220" class="arrow" />
+  <line x1="580" y1="265" x2="640" y2="265" class="arrow" />
+  <line x1="330" y1="265" x2="260" y2="265" class="arrow" />
+</svg>

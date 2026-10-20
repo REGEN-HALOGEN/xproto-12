@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this research artifact, please cite it as below."
+title: "Lost in Translation: Cross-Protocol Confused-Deputy Attacks on Multi-Protocol AI Agents (MCP × A2A)"
+authors:
+  - family-names: "XProto Research Team"
+    given-names: "Security & Verification"
+version: 1.0.0
+date-released: 2026-10-20
+url: "https://github.com/REGEN-HALOGEN/xproto-12"
+repository-code: "https://github.com/REGEN-HALOGEN/xproto-12"
+license: MIT
+keywords:
+  - "ai-agents"
+  - "model-context-protocol"
+  - "agent2agent"
+  - "confused-deputy"
+  - "authorization"
+  - "provenance"
+  - "xgate"

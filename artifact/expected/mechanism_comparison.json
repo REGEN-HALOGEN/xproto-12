@@ -1,0 +1,35 @@
+{
+  "native": {
+    "n": 12,
+    "vulnerable_asr": 1.0,
+    "vulnerable_successes": 12,
+    "defended_asr": 0.0,
+    "defended_successes": 0,
+    "asr_reduction": 1.0,
+    "bypass_rate": 0.0,
+    "vulnerable_exfil_rate": 0.6667,
+    "defended_exfil_rate": 0.0
+  },
+  "agentdojo": {
+    "n": 6,
+    "vulnerable_asr": 1.0,
+    "vulnerable_successes": 6,
+    "defended_asr": 0.0,
+    "defended_successes": 0,
+    "asr_reduction": 1.0,
+    "bypass_rate": 0.0,
+    "vulnerable_exfil_rate": 0.6667,
+    "defended_exfil_rate": 0.0
+  },
+  "injecagent": {
+    "n": 6,
+    "vulnerable_asr": 0.8333,
+    "vulnerable_successes": 5,
+    "defended_asr": 0.0,
+    "defended_successes": 0,
+    "asr_reduction": 0.8333,
+    "bypass_rate": 0.0,
+    "vulnerable_exfil_rate": 0.5,
+    "defended_exfil_rate": 0.0
+  }
+}
