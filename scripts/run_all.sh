@@ -6,7 +6,7 @@ cd "$(dirname "$0")/.."
 PY="./.venv/bin/python"
 [ -x "$PY" ] || PY="python3"
 export PYTHONPATH="$PWD/src${PYTHONPATH:+:$PYTHONPATH}"
-XPROTO_TRIALS="${XPROTO_TRIALS:-10}" "$PY" -m xproto.eval
+XPROTO_TRIALS="${XPROTO_TRIALS:-10}" "$PY" -m xproto.eval "$@"
 echo
 echo "==== summary ===="
-cat results/summary.md
+[ -f results/summary.md ] && cat results/summary.md || true

@@ -104,9 +104,29 @@ XProto-12 implements a formal pre-registered evaluation protocol:
 - `src/xproto/defense_xgate.py` — XGate authorization proxy with attestation registry
 - `src/xproto/eval.py` — evaluation runner with paired hypothesis tests and run manifest
 - `study/` — pre-registered evaluation protocol (`protocol.yaml`) and power simulation (`power.py`)
-- `scenarios/` — XProto-12 attack corpus, benign corpus, attestation corpus, and planner smoke corpus
+- `benchmarks/` — external benchmark adapters, manifest lock (`manifest.lock`), and case schemas
+- `scenarios/` — XProto-12 attack corpus, benign corpus, attestation corpus, planner smoke corpus, and external benchmark scenarios (`scenarios/external/`)
 - `testdata/` — public / poisoned / synthetic secret fixtures (`fixtures.json`)
-- `tests/` — sandbox, attestation, delegation, statistics, and planner tests
-- `results/` — per-trial logs, paired statistical summaries, and run manifest
+- `tests/` — sandbox, attestation, delegation, statistics, planner, and benchmark adapter tests
+- `results/` — per-trial logs, paired statistical summaries, run manifests, and mechanism comparison
+
+## External Benchmarks & Cross-Benchmark Comparison (Phase 6)
+
+XProto-12 includes adapters for standard indirect prompt injection benchmarks, mapped to dual-protocol tool-use and delegation semantics:
+- **AgentDojo (Debenedetti et al., NeurIPS 2024; MIT)**: Workspace file exfiltration, Slack credential leakage, banking account scraping, and travel delegation tasks pinned at revision `9f4e2b1`.
+- **InjecAgent (Zhan et al., ACL 2024; Apache-2.0)**: Data Harvesting (DH) and Impersonation & Unauthorized Access (IUA) cases pinned at revision `8c3b7f2`.
+- **Manifest Lock (`benchmarks/manifest.lock`)**: Pinned revisions, licensing declarations, SHA-256 fixture integrity checksums, and explicit exclusion records.
+- **Cross-Benchmark Evaluation**:
+  ```bash
+  # Run AgentDojo suite
+  python -m xproto.eval --suite agentdojo --planner regex --trials 1
+
+  # Run InjecAgent suite
+  python -m xproto.eval --suite injecagent --planner regex --trials 1
+
+  # Run combined suites and generate mechanism comparison
+  python -m xproto.eval --suite external --planner regex --trials 1
+  ```
+  Generates `results/mechanism_comparison.json` and `results/mechanism_comparison.md` comparing ASR reduction and defense mechanisms (principal-chain weakest-link and anti-laundering rules) across native and external benchmark corpora.
 
 

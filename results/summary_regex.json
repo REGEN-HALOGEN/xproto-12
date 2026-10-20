@@ -1,5 +1,5 @@
 {
-  "generated_ts": 1792225965.1581514,
+  "generated_ts": 1792227236.4451978,
   "trials_per_scenario": 1,
   "suite": "native",
   "planner": {
@@ -203,7 +203,7 @@
       "false_positives": 0,
       "false_positive_rate": 0.0
     },
-    "latency_mean_ms": 13.863,
+    "latency_mean_ms": 7.786,
     "latency_calls": 25
   },
   "defense_on": {
@@ -393,7 +393,7 @@
       "false_positives": 0,
       "false_positive_rate": 0.0
     },
-    "latency_mean_ms": 5.246,
+    "latency_mean_ms": 5.238,
     "latency_calls": 14
   },
   "asr_reduction": {
@@ -683,39 +683,39 @@
   "latency_distribution": {
     "defense_off": {
       "count": 25,
-      "mean": 13.863,
-      "median": 5.49,
-      "p95": 11.708,
-      "p99": 159.786,
+      "mean": 7.786,
+      "median": 5.35,
+      "p95": 7.03,
+      "p99": 61.164,
       "ci95_mean": [
-        5.053,
-        30.128
+        4.448,
+        13.789
       ],
       "ci95_median": [
-        5.19,
-        5.85
+        5.16,
+        5.47
       ]
     },
     "defense_on": {
       "count": 14,
-      "mean": 5.246,
-      "median": 5.36,
-      "p95": 5.865,
-      "p99": 5.933,
+      "mean": 5.238,
+      "median": 5.455,
+      "p95": 5.71,
+      "p99": 5.798,
       "ci95_mean": [
-        4.886,
-        5.513
+        4.794,
+        5.521
       ],
       "ci95_median": [
-        5.11,
-        5.555
+        5.3,
+        5.535
       ]
     },
     "overhead": {
-      "mean_overhead_ms": -8.617,
-      "median_overhead_ms": -0.13,
-      "p95_overhead_ms": -5.843,
-      "p99_overhead_ms": -153.853
+      "mean_overhead_ms": -2.548,
+      "median_overhead_ms": 0.105,
+      "p95_overhead_ms": -1.32,
+      "p99_overhead_ms": -55.366
     }
   },
   "exclusions": {
@@ -726,8 +726,8 @@
     "parser_errors": 0
   },
   "latency_ms": {
-    "defense_off_mean": 13.863,
-    "defense_on_mean": 5.246,
-    "overhead_mean": -8.617
+    "defense_off_mean": 7.786,
+    "defense_on_mean": 5.238,
+    "overhead_mean": -2.548
   }
 }

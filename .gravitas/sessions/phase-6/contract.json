@@ -1,0 +1,29 @@
+{
+  "mode": "implement",
+  "objective": "Phase 6: Add AgentDojo and InjecAgent external benchmark adapters",
+  "acceptance_criteria": [
+    "benchmarks/schema.py defines standard adapter record schema with stable case ID, source name and revision, license, source family, setup, task text, injected content, benign target effect, malicious target effect, and required tools",
+    "benchmarks/manifest.lock pins upstream revisions, licenses, imported subset, and explicitly documents excluded cases with unsupported capability reasons",
+    "benchmarks/agentdojo_adapter.py deterministically imports and converts pinned AgentDojo cases to XProto scenario schema",
+    "benchmarks/injecagent_adapter.py deterministically imports and converts pinned InjecAgent cases to XProto scenario schema",
+    "scenarios/external/ contains agentdojo.json and injecagent.json converted scenarios executable against MCP, A2A, and XGate",
+    "src/xproto/eval.py supports evaluating benchmark suites independently and outputs separate summaries (summary_agentdojo.json/md, summary_injecagent.json/md) and mechanism-level comparisons",
+    "tests/test_benchmark_adapters.py verifies adapter conversions, schema adherence, exclusion tracking, and evaluation compatibility"
+  ],
+  "non_goals": [
+    "Do not implement Phase 7 deeper multi-hop topologies (chains >= 5) or cryptographic token integrity yet"
+  ],
+  "risk": "medium",
+  "budget": "deep",
+  "allowed_write_scope": [
+    "benchmarks/",
+    "scenarios/external/",
+    "tests/test_benchmark_adapters.py",
+    "src/xproto/eval.py",
+    "src/xproto/mcp_server.py",
+    "scripts/",
+    "README.md",
+    ".gravitas/"
+  ],
+  "verification": "impact"
+}

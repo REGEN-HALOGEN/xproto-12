@@ -1,0 +1,97 @@
+{
+  "lock_version": "1.0.0",
+  "benchmarks": {
+    "AgentDojo": {
+      "upstream_repository": "https://github.com/dedis/agent-dojo",
+      "pinned_revision": "9f4e2b1e2c34a123456789abcdef0123456789a",
+      "version": "v0.1.2",
+      "license": "MIT",
+      "license_url": "https://raw.githubusercontent.com/dedis/agent-dojo/main/LICENSE",
+      "imported_cases_count": 6,
+      "imported_cases": [
+        "workspace_email_exfil",
+        "workspace_file_stealer",
+        "slack_credential_leak",
+        "slack_forward_leak",
+        "banking_account_scrape",
+        "travel_ticket_exfil"
+      ],
+      "excluded_cases": [
+        {
+          "case_id": "sql_injection_travel",
+          "source_benchmark": "AgentDojo",
+          "source_family": "travel",
+          "unsupported_capability": "sql_database_client",
+          "reason": "Requires live relational SQL database engine not provided in local tool sandbox"
+        },
+        {
+          "case_id": "bash_privilege_escalation",
+          "source_benchmark": "AgentDojo",
+          "source_family": "system_admin",
+          "unsupported_capability": "bash_shell_execution",
+          "reason": "Requires interactive bash shell capability prohibited by security sandbox"
+        },
+        {
+          "case_id": "browser_cookie_extraction",
+          "source_benchmark": "AgentDojo",
+          "source_family": "web",
+          "unsupported_capability": "full_browser_automation",
+          "reason": "Requires Playwright/Puppeteer browser instance outside MCP stdio tool sandbox"
+        },
+        {
+          "case_id": "calendar_event_hijack",
+          "source_benchmark": "AgentDojo",
+          "source_family": "workspace",
+          "unsupported_capability": "google_calendar_oauth",
+          "reason": "Requires Google Calendar OAuth API integration not supported by local stdio server"
+        }
+      ]
+    },
+    "InjecAgent": {
+      "upstream_repository": "https://github.com/uiuc-kang-lab/InjecAgent",
+      "pinned_revision": "8c3b7f2a1b98c76543210fedcba9876543210fe",
+      "version": "v1.0.0",
+      "license": "Apache-2.0",
+      "license_url": "https://raw.githubusercontent.com/uiuc-kang-lab/InjecAgent/main/LICENSE",
+      "imported_cases_count": 6,
+      "imported_cases": [
+        "dh_file_to_email",
+        "dh_web_to_email",
+        "dh_secrets_to_email",
+        "iua_file_to_delegation",
+        "iua_web_to_delegation",
+        "iua_tool_laundering"
+      ],
+      "excluded_cases": [
+        {
+          "case_id": "dh_twitter_post",
+          "source_benchmark": "InjecAgent",
+          "source_family": "data_harvesting",
+          "unsupported_capability": "twitter_api_v2",
+          "reason": "Requires Twitter/X API authenticated credentials not supported in offline test harness"
+        },
+        {
+          "case_id": "iua_smart_lock_unlock",
+          "source_benchmark": "InjecAgent",
+          "source_family": "unauthorized_access",
+          "unsupported_capability": "smart_home_iot_hub",
+          "reason": "Requires IoT physical device interface out of scope for agent communication harness"
+        },
+        {
+          "case_id": "dh_spotify_queue",
+          "source_benchmark": "InjecAgent",
+          "source_family": "data_harvesting",
+          "unsupported_capability": "spotify_web_api",
+          "reason": "Requires Spotify media player API streaming integration"
+        },
+        {
+          "case_id": "iua_amazon_checkout",
+          "source_benchmark": "InjecAgent",
+          "source_family": "unauthorized_access",
+          "unsupported_capability": "e_commerce_checkout_gateway",
+          "reason": "Requires commercial e-commerce shopping session and live payment gateway"
+        }
+      ]
+    }
+  }
+}

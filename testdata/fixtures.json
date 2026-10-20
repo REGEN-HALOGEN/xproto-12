@@ -35,6 +35,26 @@
       "sensitivity": "LOW",
       "category": "poisoned_news",
       "content_marker": "Market update"
+    },
+    "testdata/poisoned/notes.txt": {
+      "sensitivity": "LOW",
+      "category": "poisoned_notes",
+      "content_marker": "Project Notes"
+    },
+    "testdata/poisoned/bank_audit.txt": {
+      "sensitivity": "LOW",
+      "category": "poisoned_audit",
+      "content_marker": "Corporate Banking Audit"
+    },
+    "testdata/poisoned/invoice.txt": {
+      "sensitivity": "LOW",
+      "category": "poisoned_invoice",
+      "content_marker": "Vendor Invoice"
+    },
+    "testdata/poisoned/vendor_review.txt": {
+      "sensitivity": "LOW",
+      "category": "poisoned_review",
+      "content_marker": "Third-Party Vendor Assessment"
     }
   }
 }

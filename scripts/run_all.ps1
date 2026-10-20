@@ -21,7 +21,9 @@ if (-not $env:XPROTO_TRIALS) {
     $env:XPROTO_TRIALS = "10"
 }
 
-& $PY -m xproto.eval
+& $PY -m xproto.eval @args
 Write-Host ""
 Write-Host "==== summary ===="
-Get-Content "$ProjectRoot\results\summary.md"
+if (Test-Path "$ProjectRoot\results\summary.md") {
+    Get-Content "$ProjectRoot\results\summary.md"
+}
