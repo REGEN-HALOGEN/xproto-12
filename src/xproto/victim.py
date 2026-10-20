@@ -70,8 +70,8 @@ EMAIL_RE = re.compile(r"[\w.+-]+@[\w.-]+\.\w+")
 PATH_RE = re.compile(r"(/[\w./~\-]+|~[/\w.\-]+|testdata/[\w./\-]+)")
 DELEGATE_RE = re.compile(r"delegate to (https?://[^\s:]+(?::\d+)?)\s*:?\s*(.*)", re.I)
 CAPABILITY_RE = re.compile(r"use the ([\w\- ]+?) (?:relay|agent)", re.I)
-INSTRUCTION_RE = re.compile(r"^INSTRUCTION:\s*(.+)$", re.M)
-MAX_DEPTH = 3
+INSTRUCTION_RE = re.compile(r"^(?:INSTRUCTION|INSTRUCCIÓN|ANWEISUNG|DIRECTIVE):\s*(.+)$", re.M | re.I)
+MAX_DEPTH = 10
 
 DEFAULT_TOOLS: list[ToolDefinition] = [
     ToolDefinition(
@@ -176,7 +176,8 @@ class VictimExecutor(AgentExecutor):
     async def _handle(self, text: str, chain: list[str], provenance: str,
                       delegator: str | None, depth: int,
                       history: list[InputSegment] | None = None) -> str:
-        if depth > MAX_DEPTH:
+        max_depth = getattr(self.config, "max_depth", MAX_DEPTH)
+        if depth > max_depth:
             return "stopped: instruction nesting too deep"
         eff_chain = chain + (["tool-output"] if provenance == "tool-output" else [])
         t = text.strip()
@@ -216,7 +217,7 @@ class VictimExecutor(AgentExecutor):
             # Support two-step task: read_file followed by send_email
             if decision.tool == "read_file":
                 email = EMAIL_RE.search(t)
-                if email and "email" in t.lower():
+                if email and ("email" in t.lower() or "e-mail" in t.lower() or "@" in t):
                     next_history = (history or []) + [
                         InputSegment(
                             text=content,

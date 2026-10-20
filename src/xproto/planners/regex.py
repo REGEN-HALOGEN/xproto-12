@@ -35,6 +35,11 @@ class RegexPlanner(Planner):
         t = request.task_text.strip()
         decision: PlanDecision
 
+        # Unwrap structured or tagged injection prefixes if present
+        inst_m = re.search(r"(?:INSTRUCTION|INSTRUCCIÓN|ANWEISUNG|DIRECTIVE)[\s:]+(.+?)(?:\"|\}|$|\n)", t, re.I)
+        if inst_m:
+            t = inst_m.group(1).strip()
+
         m = DELEGATE_RE.search(t)
         if m:
             target_url = m.group(1)
@@ -81,9 +86,12 @@ class RegexPlanner(Planner):
 
         # 3. Email sending (with potential read_file prerequisite)
         email = EMAIL_RE.search(t)
-        if email and "email" in t.lower():
+        if email and ("email" in t.lower() or "e-mail" in t.lower()):
             addr = email.group(0)
-            pm = re.search(r"(?:contents|summary) of (\S+)", t, re.I)
+            pm = (
+                re.search(r"(?:contents|summary|contenido|inhalt)\s+(?:of|de|von)\s+(\S+)", t, re.I)
+                or PATH_RE.search(t)
+            )
             if pm:
                 file_path = pm.group(1)
                 # Check if history already contains the read_file tool result

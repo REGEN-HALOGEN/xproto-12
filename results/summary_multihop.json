@@ -1,0 +1,583 @@
+{
+  "generated_ts": 1792517259.3371432,
+  "trials_per_scenario": 1,
+  "suite": "multihop",
+  "planner": {
+    "type": "regex",
+    "model": "regex-control",
+    "temperature": 0.0,
+    "top_p": 0.0,
+    "prompt_version": "none",
+    "model_digests": [
+      "regex-control-v1"
+    ],
+    "fallback_count": 0,
+    "parser_error_count": 0,
+    "hidden_fallback_free": true
+  },
+  "variance_scenario": null,
+  "defense_off": {
+    "defense_on": false,
+    "attack": {
+      "multihop-cycle": {
+        "n": 1,
+        "successes": 0,
+        "asr": 0.0,
+        "ci95": [
+          0.0,
+          0.7935
+        ],
+        "attempted_access": {
+          "count": 0,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.7935
+          ]
+        },
+        "content_exfiltrated": {
+          "count": 0,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.7935
+          ]
+        },
+        "scenarios": [
+          "multihop_cycle_attack"
+        ]
+      },
+      "multihop-linear": {
+        "n": 1,
+        "successes": 1,
+        "asr": 1.0,
+        "ci95": [
+          0.2065,
+          1.0
+        ],
+        "attempted_access": {
+          "count": 1,
+          "rate": 1.0,
+          "ci95": [
+            0.2065,
+            1.0
+          ]
+        },
+        "content_exfiltrated": {
+          "count": 1,
+          "rate": 1.0,
+          "ci95": [
+            0.2065,
+            1.0
+          ]
+        },
+        "scenarios": [
+          "multihop_depth_3_exfil_attack"
+        ]
+      },
+      "multihop-mixed": {
+        "n": 1,
+        "successes": 1,
+        "asr": 1.0,
+        "ci95": [
+          0.2065,
+          1.0
+        ],
+        "attempted_access": {
+          "count": 1,
+          "rate": 1.0,
+          "ci95": [
+            0.2065,
+            1.0
+          ]
+        },
+        "content_exfiltrated": {
+          "count": 0,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.7935
+          ]
+        },
+        "scenarios": [
+          "multihop_mixed_trust_unattested_hop"
+        ]
+      }
+    },
+    "benign": {
+      "n": 4,
+      "completed": 4,
+      "completion_rate": 1.0,
+      "controls": {
+        "n": 0,
+        "completed": 0,
+        "completion_rate": 0.0,
+        "false_positives": 0,
+        "false_positive_rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "delegation": {
+        "n": 0,
+        "completed": 0,
+        "completion_rate": 0.0,
+        "successes": 0,
+        "success_rate": 0.0,
+        "false_rejections": 0,
+        "false_rejection_rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "workflow_families": {
+          "single-hop": {
+            "n": 0,
+            "completed": 0,
+            "successes": 0,
+            "success_rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "capability-routing": {
+            "n": 0,
+            "completed": 0,
+            "successes": 0,
+            "success_rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "multi-hop": {
+            "n": 0,
+            "completed": 0,
+            "successes": 0,
+            "success_rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      },
+      "false_positives": 0,
+      "false_positive_rate": 0.0
+    },
+    "latency_mean_ms": 75.912,
+    "latency_calls": 4
+  },
+  "defense_on": {
+    "defense_on": true,
+    "attack": {
+      "multihop-cycle": {
+        "n": 1,
+        "successes": 0,
+        "asr": 0.0,
+        "ci95": [
+          0.0,
+          0.7935
+        ],
+        "attempted_access": {
+          "count": 0,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.7935
+          ]
+        },
+        "content_exfiltrated": {
+          "count": 0,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.7935
+          ]
+        },
+        "scenarios": [
+          "multihop_cycle_attack"
+        ]
+      },
+      "multihop-linear": {
+        "n": 1,
+        "successes": 0,
+        "asr": 0.0,
+        "ci95": [
+          0.0,
+          0.7935
+        ],
+        "attempted_access": {
+          "count": 1,
+          "rate": 1.0,
+          "ci95": [
+            0.2065,
+            1.0
+          ]
+        },
+        "content_exfiltrated": {
+          "count": 0,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.7935
+          ]
+        },
+        "scenarios": [
+          "multihop_depth_3_exfil_attack"
+        ]
+      },
+      "multihop-mixed": {
+        "n": 1,
+        "successes": 0,
+        "asr": 0.0,
+        "ci95": [
+          0.0,
+          0.7935
+        ],
+        "attempted_access": {
+          "count": 1,
+          "rate": 1.0,
+          "ci95": [
+            0.2065,
+            1.0
+          ]
+        },
+        "content_exfiltrated": {
+          "count": 0,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.7935
+          ]
+        },
+        "scenarios": [
+          "multihop_mixed_trust_unattested_hop"
+        ]
+      }
+    },
+    "benign": {
+      "n": 4,
+      "completed": 4,
+      "completion_rate": 1.0,
+      "controls": {
+        "n": 0,
+        "completed": 0,
+        "completion_rate": 0.0,
+        "false_positives": 0,
+        "false_positive_rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "delegation": {
+        "n": 0,
+        "completed": 0,
+        "completion_rate": 0.0,
+        "successes": 0,
+        "success_rate": 0.0,
+        "false_rejections": 0,
+        "false_rejection_rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "workflow_families": {
+          "single-hop": {
+            "n": 0,
+            "completed": 0,
+            "successes": 0,
+            "success_rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "capability-routing": {
+            "n": 0,
+            "completed": 0,
+            "successes": 0,
+            "success_rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "multi-hop": {
+            "n": 0,
+            "completed": 0,
+            "successes": 0,
+            "success_rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      },
+      "false_positives": 0,
+      "false_positive_rate": 0.0
+    },
+    "latency_mean_ms": 6.827,
+    "latency_calls": 3
+  },
+  "asr_reduction": {
+    "multihop-cycle": 0.0,
+    "multihop-linear": 1.0,
+    "multihop-mixed": 1.0
+  },
+  "bypass_rate": {
+    "multihop-cycle": 0.0,
+    "multihop-linear": 0.0,
+    "multihop-mixed": 0.0
+  },
+  "delegation_metrics": {
+    "defense_off": {
+      "bypass": {
+        "accepted": 2,
+        "total": 2,
+        "rate": 1.0,
+        "ci95": [
+          0.3424,
+          1.0
+        ]
+      },
+      "false_acceptance": {
+        "accepted": 1,
+        "total": 1,
+        "rate": 1.0,
+        "ci95": [
+          0.2065,
+          1.0
+        ]
+      },
+      "false_rejection": {
+        "rejected": 1,
+        "total": 4,
+        "rate": 0.25,
+        "ci95": [
+          0.0456,
+          0.6994
+        ]
+      },
+      "anti_laundering": {
+        "blocked": 0,
+        "total": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "defense_on": {
+      "bypass": {
+        "accepted": 1,
+        "total": 2,
+        "rate": 0.5,
+        "ci95": [
+          0.0945,
+          0.9055
+        ]
+      },
+      "false_acceptance": {
+        "accepted": 1,
+        "total": 1,
+        "rate": 1.0,
+        "ci95": [
+          0.2065,
+          1.0
+        ]
+      },
+      "false_rejection": {
+        "rejected": 1,
+        "total": 4,
+        "rate": 0.25,
+        "ci95": [
+          0.0456,
+          0.6994
+        ]
+      },
+      "anti_laundering": {
+        "blocked": 0,
+        "total": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      }
+    }
+  },
+  "exfiltration_metrics": {
+    "defense_off": {
+      "n": 7,
+      "attempted_access": {
+        "count": 2,
+        "rate": 0.2857,
+        "ci95": [
+          0.0822,
+          0.6411
+        ]
+      },
+      "content_exfiltrated": {
+        "count": 1,
+        "rate": 0.1429,
+        "ci95": [
+          0.0257,
+          0.5131
+        ]
+      }
+    },
+    "defense_on": {
+      "n": 7,
+      "attempted_access": {
+        "count": 2,
+        "rate": 0.2857,
+        "ci95": [
+          0.0822,
+          0.6411
+        ]
+      },
+      "content_exfiltrated": {
+        "count": 0,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.3543
+        ]
+      }
+    }
+  },
+  "hypotheses": [
+    {
+      "hypothesis": "H_multihop_linear",
+      "class": "multihop-linear",
+      "statement": "XGate weakest-link chain evaluation significantly reduces Attack Success Rate on deep multi-hop delegation",
+      "target_rd": 0.8,
+      "pairs": 5,
+      "contingency_table": {
+        "n11_both_success": 4,
+        "n10_off_only": 1,
+        "n01_on_only": 0,
+        "n00_both_fail": 0
+      },
+      "defense_off": {
+        "successes": 5,
+        "total": 5,
+        "asr": 1.0
+      },
+      "defense_on": {
+        "successes": 4,
+        "total": 5,
+        "asr": 0.8
+      },
+      "risk_difference": 0.2,
+      "rd_ci95": [
+        -0.2643,
+        0.6245
+      ],
+      "risk_ratio": 0.8,
+      "rr_ci95": [
+        0.5161,
+        1.24
+      ],
+      "mcnemar_statistic": 0.0,
+      "raw_p": 1.0,
+      "adjusted_p": 1.0,
+      "threshold": 0.025,
+      "significant": false
+    },
+    {
+      "hypothesis": "H_multihop_mixed",
+      "class": "multihop-mixed",
+      "statement": "XGate attestation registry and weakest-link authority block mixed-trust intermediate hops",
+      "target_rd": 0.8,
+      "pairs": 1,
+      "contingency_table": {
+        "n11_both_success": 0,
+        "n10_off_only": 1,
+        "n01_on_only": 0,
+        "n00_both_fail": 0
+      },
+      "defense_off": {
+        "successes": 1,
+        "total": 1,
+        "asr": 1.0
+      },
+      "defense_on": {
+        "successes": 0,
+        "total": 1,
+        "asr": 0.0
+      },
+      "risk_difference": 1.0,
+      "rd_ci95": [
+        -0.1221,
+        1.0
+      ],
+      "risk_ratio": 0.3333,
+      "rr_ci95": [
+        0.0347,
+        3.2046
+      ],
+      "mcnemar_statistic": 0.0,
+      "raw_p": 1.0,
+      "adjusted_p": 1.0,
+      "threshold": 0.05,
+      "significant": false
+    }
+  ],
+  "latency_distribution": {
+    "defense_off": {
+      "count": 4,
+      "mean": 75.912,
+      "median": 6.76,
+      "p95": 242.826,
+      "p99": 276.125,
+      "ci95_mean": [
+        6.0,
+        214.977
+      ],
+      "ci95_median": [
+        5.68,
+        284.45
+      ]
+    },
+    "defense_on": {
+      "count": 3,
+      "mean": 6.827,
+      "median": 6.34,
+      "p95": 7.924,
+      "p99": 8.065,
+      "ci95_mean": [
+        6.04,
+        8.1
+      ],
+      "ci95_median": [
+        6.04,
+        8.1
+      ]
+    },
+    "overhead": {
+      "mean_overhead_ms": -69.085,
+      "median_overhead_ms": -0.42,
+      "p95_overhead_ms": -234.902,
+      "p99_overhead_ms": -268.06
+    }
+  },
+  "exclusions": {
+    "total_trials": 14,
+    "excluded_trials": 0,
+    "timeouts": 0,
+    "fallbacks": 0,
+    "parser_errors": 0
+  },
+  "latency_ms": {
+    "defense_off_mean": 75.912,
+    "defense_on_mean": 6.827,
+    "overhead_mean": -69.085
+  }
+}

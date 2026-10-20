@@ -68,3 +68,4 @@ class VictimConfig:
     honest_provenance: bool = False  # False = vulnerable (confused deputy)
     known_agents: dict[str, str] = field(default_factory=dict)  # capability -> url
     planner_config: PlannerConfig = field(default_factory=PlannerConfig)
+    max_depth: int = 10

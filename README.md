@@ -129,4 +129,24 @@ XProto-12 includes adapters for standard indirect prompt injection benchmarks, m
   ```
   Generates `results/mechanism_comparison.json` and `results/mechanism_comparison.md` comparing ASR reduction and defense mechanisms (principal-chain weakest-link and anti-laundering rules) across native and external benchmark corpora.
 
+## Chain Integrity, Payload Realism & Load Profiling (Phase 7)
+
+Phase 7 hardens delegation chain integrity, evaluates diverse prompt injection variants, and profiles system concurrency:
+- **Cryptographic Provenance Tokens (`src/xproto/provenance_token.py`)**: Ed25519-signed provenance hop tokens bound to issuer, audience, task hash, parent token hash, capability, nonce, expiry, and content hash. Strict rejection of replay, reordering, truncation, substitution, wrong audience, expired tokens, and broken parent links.
+- **Tool-Output Data Invariant**: Tool-derived text is strictly classified as data. A valid signature never elevates tool output to privileged authority.
+- **Configurable Multi-Hop Topologies (`src/xproto/topology.py`, `scenarios/multihop.json`)**: Configurable max delegation depth (chains of lengths 1, 2, 3, 5, 8), cycle detection, repeated principal handling, and mixed-trust weakest-link authority enforcement.
+- **Diverse Payload Corpus (`scenarios/payload_diversity.json`)**: Evaluates direct overrides, indirect document payloads, obfuscated encodings, multilingual instructions (Spanish, German), structured tables/JSON, and tool-error laundering.
+- **Concurrency & Load Profiling (`scripts/profile_load.py`)**:
+  ```bash
+  # Run load profiling across concurrency 1, 8, 32
+  python scripts/profile_load.py
+
+  # Run multi-hop evaluation suite
+  python -m xproto.eval --suite multihop --planner regex --trials 1
+
+  # Run payload diversity evaluation suite
+  python -m xproto.eval --suite payload_diversity --planner regex --trials 1
+  ```
+  Generates `results/load_profile.json` and `results/load_profile.md` verifying that signature verification ($\le 1.0$ ms) and policy evaluation ($\le 2.0$ ms) remain strictly within pre-registered latency overhead budgets.
+
 

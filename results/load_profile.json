@@ -1,0 +1,223 @@
+{
+  "timestamp": "2026-10-20T17:23:20Z",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "python_version": "3.12.10",
+  "concurrency_profiles": [
+    {
+      "concurrency": 1,
+      "requests_completed": 128,
+      "wall_duration_s": 0.0428,
+      "throughput_req_sec": 2993.3,
+      "cpu_time_s": 0.0312,
+      "cpu_utilization_pct": 73.1,
+      "memory_start_mb": 40.28,
+      "memory_end_mb": 40.49,
+      "total_latency": {
+        "count": 128,
+        "min": 0.224,
+        "mean": 0.321,
+        "p50": 0.25,
+        "p95": 0.425,
+        "p99": 0.552,
+        "max": 5.849
+      },
+      "components": {
+        "planner": {
+          "count": 128,
+          "min": 0.0,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "p99": 0.001,
+          "max": 0.001
+        },
+        "transport": {
+          "count": 128,
+          "min": 0.003,
+          "mean": 0.004,
+          "p50": 0.004,
+          "p95": 0.008,
+          "p99": 0.011,
+          "max": 0.015
+        },
+        "tool": {
+          "count": 128,
+          "min": 0.072,
+          "mean": 0.142,
+          "p50": 0.084,
+          "p95": 0.183,
+          "p99": 0.244,
+          "max": 5.466
+        },
+        "signature_verification": {
+          "count": 128,
+          "min": 0.146,
+          "mean": 0.172,
+          "p50": 0.157,
+          "p95": 0.258,
+          "p99": 0.307,
+          "max": 0.362
+        },
+        "policy_evaluation": {
+          "count": 128,
+          "min": 0.002,
+          "mean": 0.002,
+          "p50": 0.002,
+          "p95": 0.005,
+          "p99": 0.006,
+          "max": 0.006
+        }
+      }
+    },
+    {
+      "concurrency": 8,
+      "requests_completed": 128,
+      "wall_duration_s": 0.0373,
+      "throughput_req_sec": 3433.3,
+      "cpu_time_s": 0.0312,
+      "cpu_utilization_pct": 83.8,
+      "memory_start_mb": 40.5,
+      "memory_end_mb": 40.59,
+      "total_latency": {
+        "count": 128,
+        "min": 0.224,
+        "mean": 0.279,
+        "p50": 0.255,
+        "p95": 0.434,
+        "p99": 0.526,
+        "max": 0.539
+      },
+      "components": {
+        "planner": {
+          "count": 128,
+          "min": 0.0,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.001,
+          "p99": 0.007,
+          "max": 0.007
+        },
+        "transport": {
+          "count": 128,
+          "min": 0.003,
+          "mean": 0.005,
+          "p50": 0.004,
+          "p95": 0.009,
+          "p99": 0.013,
+          "max": 0.032
+        },
+        "tool": {
+          "count": 128,
+          "min": 0.071,
+          "mean": 0.1,
+          "p50": 0.087,
+          "p95": 0.188,
+          "p99": 0.212,
+          "max": 0.224
+        },
+        "signature_verification": {
+          "count": 128,
+          "min": 0.145,
+          "mean": 0.172,
+          "p50": 0.16,
+          "p95": 0.236,
+          "p99": 0.306,
+          "max": 0.309
+        },
+        "policy_evaluation": {
+          "count": 128,
+          "min": 0.002,
+          "mean": 0.003,
+          "p50": 0.002,
+          "p95": 0.004,
+          "p99": 0.01,
+          "max": 0.041
+        }
+      }
+    },
+    {
+      "concurrency": 32,
+      "requests_completed": 128,
+      "wall_duration_s": 0.037,
+      "throughput_req_sec": 3458.2,
+      "cpu_time_s": 0.0312,
+      "cpu_utilization_pct": 84.4,
+      "memory_start_mb": 40.59,
+      "memory_end_mb": 40.64,
+      "total_latency": {
+        "count": 128,
+        "min": 0.224,
+        "mean": 0.277,
+        "p50": 0.248,
+        "p95": 0.503,
+        "p99": 0.679,
+        "max": 0.679
+      },
+      "components": {
+        "planner": {
+          "count": 128,
+          "min": 0.0,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "p99": 0.001,
+          "max": 0.011
+        },
+        "transport": {
+          "count": 128,
+          "min": 0.003,
+          "mean": 0.004,
+          "p50": 0.004,
+          "p95": 0.009,
+          "p99": 0.012,
+          "max": 0.013
+        },
+        "tool": {
+          "count": 128,
+          "min": 0.072,
+          "mean": 0.101,
+          "p50": 0.085,
+          "p95": 0.205,
+          "p99": 0.357,
+          "max": 0.393
+        },
+        "signature_verification": {
+          "count": 128,
+          "min": 0.146,
+          "mean": 0.169,
+          "p50": 0.157,
+          "p95": 0.265,
+          "p99": 0.309,
+          "max": 0.325
+        },
+        "policy_evaluation": {
+          "count": 128,
+          "min": 0.002,
+          "mean": 0.002,
+          "p50": 0.002,
+          "p95": 0.004,
+          "p99": 0.006,
+          "max": 0.007
+        }
+      }
+    }
+  ],
+  "budget_evaluation": {
+    "signature_verification": {
+      "budget_p95_ms": 1.0,
+      "measured_p95_ms": 0.265,
+      "passed": true
+    },
+    "policy_evaluation": {
+      "budget_p95_ms": 2.0,
+      "measured_p95_ms": 0.004,
+      "passed": true
+    },
+    "total_security_overhead": {
+      "budget_p95_ms": 5.0,
+      "measured_p95_ms": 0.269,
+      "passed": true
+    },
+    "overall_budget_pass": true
+  }
+}

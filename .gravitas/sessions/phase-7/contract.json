@@ -1,0 +1,35 @@
+{
+  "mode": "implement",
+  "objective": "Phase 7: Harden chain integrity, payload realism, and load behavior",
+  "acceptance_criteria": [
+    "src/xproto/provenance_token.py binds tokens to issuer, audience, task_hash, parent_token_hash, capability, nonce, expiry, and content_hash with per-hop Ed25519 signing",
+    "src/xproto/provenance_token.py detects and rejects token replay, reordering, truncation, substitution, wrong audience, expired tokens, and broken parent links",
+    "Tool-derived text remains classified as data, ensuring valid cryptographic signatures never grant tool-output independent authority",
+    "src/xproto/topology.py supports configurable maximum delegation depth with topologies of lengths 1, 2, 3, 5, and 8, as well as cycles, repeated principals, and mixed trust hops",
+    "scenarios/multihop.json defines test cases covering chain lengths 1, 2, 3, 5, 8, cycles, and mixed-trust topologies",
+    "scenarios/payload_diversity.json defines direct, indirect, obfuscated, multilingual, structured/table, and tool-error injection payloads",
+    "scripts/profile_load.py measures concurrency at 1, 8, and 32, recording throughput, p50/p95/p99 latency, and component cost breakdown (planner, transport, tool, signature, policy)",
+    "tests/test_token_integrity.py and tests/test_topologies.py verify cryptographic token binding, tamper resistance, and topology execution"
+  ],
+  "non_goals": [
+    "Do not package the final Phase 8 reproduction bundle or README publication report yet"
+  ],
+  "risk": "medium",
+  "budget": "deep",
+  "allowed_write_scope": [
+    "src/xproto/provenance_token.py",
+    "src/xproto/topology.py",
+    "src/xproto/victim.py",
+    "src/xproto/defense_xgate.py",
+    "src/xproto/eval.py",
+    "src/xproto/common.py",
+    "scenarios/multihop.json",
+    "scenarios/payload_diversity.json",
+    "scripts/profile_load.py",
+    "tests/test_token_integrity.py",
+    "tests/test_topologies.py",
+    "README.md",
+    ".gravitas/"
+  ],
+  "verification": "impact"
+}
