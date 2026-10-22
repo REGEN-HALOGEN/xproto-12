@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Any, Literal
 
-PlannerType = Literal["regex", "ollama"]
+PlannerType = Literal["regex", "ollama", "openai", "openai_compatible", "anthropic"]
 
 
 def _default_ollama_model() -> str:
@@ -52,12 +52,49 @@ class OllamaConfig:
 
 @dataclass
 class PlannerConfig:
-    """Planner configuration: regex control baseline or Ollama LLM planner."""
+    """Planner configuration: regex control baseline, Ollama, OpenAI-compatible, or Anthropic."""
     planner_type: PlannerType = field(
         default_factory=lambda: os.environ.get("XPROTO_PLANNER", "regex")  # type: ignore[return-value]
     )
     ollama: OllamaConfig = field(default_factory=OllamaConfig)
+    openai: Any = None
+    anthropic: Any = None
+    provider_config: dict[str, Any] | None = None
     allow_fallback: bool = False  # NEVER silently fallback unless explicitly allowed
+
+    def __post_init__(self):
+        from xproto.providers.anthropic import AnthropicConfig
+        from xproto.providers.openai_compatible import OpenAICompatibleConfig
+
+        if self.openai is None:
+            self.openai = OpenAICompatibleConfig()
+        elif isinstance(self.openai, dict):
+            self.openai = OpenAICompatibleConfig.from_dict(self.openai)
+
+        if self.anthropic is None:
+            self.anthropic = AnthropicConfig()
+        elif isinstance(self.anthropic, dict):
+            self.anthropic = AnthropicConfig.from_dict(self.anthropic)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> PlannerConfig:
+        planner_type = data.get("planner_type") or data.get("type") or "regex"
+        allow_fallback = bool(data.get("allow_fallback", False))
+        ollama_data = data.get("ollama") or {}
+        ollama_cfg = OllamaConfig(
+            model=ollama_data.get("model", _default_ollama_model()),
+            base_url=ollama_data.get("base_url", os.environ.get("XPROTO_OLLAMA_HOST", "http://127.0.0.1:11434")),
+            temperature=float(ollama_data.get("temperature", 0.0)),
+            timeout=float(ollama_data.get("timeout", 45.0)),
+        )
+        return cls(
+            planner_type=planner_type,
+            ollama=ollama_cfg,
+            openai=data.get("openai"),
+            anthropic=data.get("anthropic"),
+            provider_config=data.get("provider_config") or data,
+            allow_fallback=allow_fallback,
+        )
 
 
 @dataclass

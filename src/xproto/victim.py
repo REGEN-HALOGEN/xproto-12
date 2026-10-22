@@ -125,6 +125,15 @@ class VictimExecutor(AgentExecutor):
                 fallback_planner=fallback,
                 allow_fallback=config.planner_config.allow_fallback,
             )
+        elif config.planner_config.planner_type in ("openai", "openai_compatible"):
+            from xproto.providers.openai_compatible import OpenAICompatibleProvider
+            self.planner = OpenAICompatibleProvider(config=config.planner_config.openai)
+        elif config.planner_config.planner_type in ("anthropic", "claude"):
+            from xproto.providers.anthropic import AnthropicProvider
+            self.planner = AnthropicProvider(config=config.planner_config.anthropic)
+        elif config.planner_config.provider_config and config.planner_config.planner_type not in ("regex",):
+            from xproto.providers import create_provider
+            self.planner = create_provider(config.planner_config.provider_config)
         else:
             self.planner = RegexPlanner()
 
