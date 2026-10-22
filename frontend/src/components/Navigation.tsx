@@ -157,6 +157,7 @@ interface HeaderProps {
   activeRunId: string | null;
   onRunActive: () => void;
   onStartDemo: () => void;
+  demoStep?: number | null;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -165,6 +166,7 @@ export const Header: React.FC<HeaderProps> = ({
   activeRunId,
   onRunActive,
   onStartDemo,
+  demoStep,
 }) => {
   return (
     <header className="h-14 border-b border-[#21262d] bg-[#0d1117] px-6 flex items-center justify-between">
@@ -192,6 +194,13 @@ export const Header: React.FC<HeaderProps> = ({
           )}
           <span>{defenseOn ? 'DEFENSE ENFORCING (ON)' : 'DEFENSE PERMISSIVE (OFF)'}</span>
         </button>
+
+        {demoStep && (
+          <div className="flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse">
+            <span>⚡ DEMO STEP {demoStep}/2:</span>
+            <span>{demoStep === 1 ? 'BASELINE (DEFENSE OFF)' : 'PROTECTED (DEFENSE ON)'}</span>
+          </div>
+        )}
       </div>
 
       {/* Header Actions */}

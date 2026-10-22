@@ -30,6 +30,7 @@ interface SetupViewProps {
   onGoToScenarios: () => void;
   onStartRun: () => void;
   isStarting: boolean;
+  onStartDemo?: () => void;
 }
 
 export const SetupView: React.FC<SetupViewProps> = ({
@@ -47,6 +48,7 @@ export const SetupView: React.FC<SetupViewProps> = ({
   onGoToScenarios,
   onStartRun,
   isStarting,
+  onStartDemo,
 }) => {
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
@@ -117,6 +119,35 @@ export const SetupView: React.FC<SetupViewProps> = ({
           Configure the victim agent planner, authority enforcement model, and benchmark parameters.
         </p>
       </div>
+
+      {/* Demo Mode Viva Banner */}
+      {onStartDemo && (
+        <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="p-2.5 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30">
+              <Zap className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold text-white">One-Click Viva Demo Mode</h3>
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  PRESENTER PRESET
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Automatically runs baseline (Defense OFF) then protected (Defense ON) for scenarios a1 & b1 back-to-back, landing on comparative results.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onStartDemo}
+            className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs flex items-center gap-1.5 shadow-md shadow-amber-950/40 transition cursor-pointer shrink-0"
+          >
+            <Play className="w-3.5 h-3.5 fill-current" />
+            <span>Launch Viva Demo</span>
+          </button>
+        </div>
+      )}
 
       {/* Planner Selector Cards */}
       <div className="space-y-3">

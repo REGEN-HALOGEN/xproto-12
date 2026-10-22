@@ -189,8 +189,20 @@ async def execute_run_task(run_id: str, run_payload: dict[str, Any]) -> None:
         })
 
     except Exception as exc:
+        err_msg = str(exc)
+        if "401" in err_msg or "Unauthorized" in err_msg:
+            clean_error = f"Authentication Error (HTTP 401): Invalid API key for provider '{planner_spec.get('type') if isinstance(planner_spec, dict) else 'planner'}'"
+        elif "Connection refused" in err_msg or "ConnectError" in err_msg:
+            clean_error = "Connection Failed: Could not connect to provider endpoint. Verify server is running."
+        elif "Timeout" in err_msg or "timeout" in err_msg:
+            clean_error = "Provider Timeout: Model request timed out."
+        elif "404" in err_msg:
+            clean_error = "Resource Not Found (HTTP 404): Check model name or base URL."
+        else:
+            clean_error = err_msg
+
         run_entry["status"] = "failed"
-        run_entry["error"] = str(exc)
+        run_entry["error"] = clean_error
         run_entry["completed_at"] = time.time()
         summary = compute_run_summary(trials_results)
         run_entry["summary"] = summary
@@ -207,7 +219,7 @@ async def execute_run_task(run_id: str, run_payload: dict[str, Any]) -> None:
         GLOBAL_EVENT_BUS.emit(run_id, "run_complete", {
             "run_id": run_id,
             "status": "failed",
-            "error": str(exc),
+            "error": clean_error,
             "summary": summary,
         })
     finally:

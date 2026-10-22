@@ -135,8 +135,8 @@ def create_app() -> FastAPI:
                 async with httpx.AsyncClient(timeout=5.0) as client:
                     resp = await client.get(url)
                     if resp.status_code == 200:
-                        return {"success": True, "message": "Ollama connection successful"}
-                    return {"success": False, "error": f"Ollama HTTP {resp.status_code}: {resp.text[:200]}"}
+                        return {"success": True, "message": "Ollama connection verified"}
+                    return {"success": False, "error": f"Ollama HTTP {resp.status_code}: {resp.text[:150]}"}
 
             if p_type in ("anthropic", "claude"):
                 url = (base_url or "https://api.anthropic.com").rstrip("/") + "/v1/messages"
@@ -152,12 +152,13 @@ def create_app() -> FastAPI:
                 }
                 async with httpx.AsyncClient(timeout=8.0) as client:
                     resp = await client.post(url, json=test_body, headers=headers)
-                    if resp.status_code in (200, 400):
-                        # 400 usually indicates valid auth but param issue; 401 is bad key
-                        if resp.status_code == 400 and "invalid_x_api_key" in resp.text:
-                            return {"success": False, "error": "Invalid Anthropic API key"}
+                    if resp.status_code == 200:
                         return {"success": True, "message": "Anthropic API connection verified"}
-                    return {"success": False, "error": f"Anthropic HTTP {resp.status_code}: {resp.text[:200]}"}
+                    if resp.status_code == 401 or (resp.status_code == 400 and "invalid_x_api_key" in resp.text):
+                        return {"success": False, "error": "Invalid Anthropic API Key (HTTP 401 / Authentication Error)"}
+                    if resp.status_code == 404:
+                        return {"success": False, "error": f"Model '{model}' not found on Anthropic (HTTP 404)"}
+                    return {"success": False, "error": f"Anthropic HTTP {resp.status_code}: {resp.text[:150]}"}
 
             # Default: OpenAI-compatible
             from xproto.providers.openai_compatible import normalize_openai_endpoint
@@ -174,11 +175,22 @@ def create_app() -> FastAPI:
             async with httpx.AsyncClient(timeout=8.0) as client:
                 resp = await client.post(endpoint, json=test_body, headers=headers)
                 if resp.status_code == 200:
-                    return {"success": True, "message": "OpenAI-compatible connection verified"}
-                return {"success": False, "error": f"Endpoint HTTP {resp.status_code}: {resp.text[:200]}"}
+                    return {"success": True, "message": "OpenAI-compatible endpoint connection verified"}
+                if resp.status_code == 401:
+                    return {"success": False, "error": "Invalid API Key (HTTP 401 Unauthorized)"}
+                if resp.status_code == 404:
+                    return {"success": False, "error": f"Model '{model}' or endpoint not found (HTTP 404)"}
+                if resp.status_code == 429:
+                    return {"success": False, "error": "Rate limit or quota exceeded (HTTP 429)"}
+                return {"success": False, "error": f"Endpoint HTTP {resp.status_code}: {resp.text[:150]}"}
 
+        except httpx.ConnectError:
+            target = base_url or ("http://127.0.0.1:11434" if p_type == "ollama" else "api endpoint")
+            return {"success": False, "error": f"Connection refused: could not reach host at {target}"}
+        except httpx.TimeoutException:
+            return {"success": False, "error": "Connection timed out after 8s"}
         except Exception as exc:
-            return {"success": False, "error": str(exc)}
+            return {"success": False, "error": f"Connection test failed: {str(exc)}"}
 
     # -----------------------------------------------------------------------
     # Live Streaming WebSocket

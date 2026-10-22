@@ -44,8 +44,11 @@ export function App() {
   const [liveEvents, setLiveEvents] = useState<EngineEvent[]>([]);
   const [selectedRun, setSelectedRun] = useState<RunRecord | null>(null);
   const [isStarting, setIsStarting] = useState<boolean>(false);
+  const [demoStep, setDemoStep] = useState<number | null>(null);
 
   const activeWsRef = useRef<WebSocket | null>(null);
+  const demoStepRef = useRef<number | null>(null);
+  demoStepRef.current = demoStep;
 
   // Load scenarios on mount
   useEffect(() => {
@@ -77,22 +80,53 @@ export function App() {
     const ws = openRunWebSocket(activeRunId);
     activeWsRef.current = ws;
 
+    const handleRunCompletion = async (runId: string) => {
+      try {
+        const completedRun = await fetchRun(runId);
+        setSelectedRun(completedRun);
+        setRuns((prev) => [completedRun, ...prev.filter((p) => p.run_id !== completedRun.run_id)]);
+
+        if (demoStepRef.current === 1) {
+          // Step 1 (Defense OFF) completed -> Automatically start Step 2 (Defense ON)
+          setDemoStep(2);
+          setDefenseOn(true);
+          try {
+            const res2 = await createRun({
+              scenario_ids: ['a1', 'b1'],
+              planner: 'regex',
+              defense_on: true,
+              trials: 1,
+            });
+            setActiveRunId(res2.run_id);
+          } catch (e) {
+            console.error('Failed to start demo step 2', e);
+            setDemoStep(null);
+            setActiveRunId(null);
+          }
+        } else if (demoStepRef.current === 2) {
+          // Step 2 (Defense ON) completed -> Transition to Compare View
+          setDemoStep(null);
+          setActiveRunId(null);
+          setCurrentTab('compare');
+        } else {
+          setActiveRunId(null);
+        }
+      } catch (err) {
+        console.error('Failed to fetch completed run', err);
+        setActiveRunId(null);
+      }
+    };
+
     ws.onmessage = (event) => {
       try {
         const ev: EngineEvent = JSON.parse(event.data);
         setLiveEvents((prev) => {
-          // Avoid duplicates by seq
           if (prev.some((e) => e.seq === ev.seq)) return prev;
           return [...prev, ev];
         });
 
         if (ev.event === 'run_complete') {
-          // Refresh run details
-          fetchRun(activeRunId).then((r) => {
-            setSelectedRun(r);
-            setRuns((prev) => [r, ...prev.filter((p) => p.run_id !== r.run_id)]);
-            setActiveRunId(null);
-          });
+          handleRunCompletion(activeRunId);
         }
       } catch (err) {
         console.error('Failed to parse WebSocket event', err);
@@ -100,6 +134,23 @@ export function App() {
     };
 
     ws.onerror = (err) => console.error('WebSocket error', err);
+
+    ws.onclose = () => {
+      // Hardening: if connection dropped while run was active, poll HTTP until complete
+      if (activeRunId) {
+        const poller = setInterval(async () => {
+          try {
+            const r = await fetchRun(activeRunId);
+            if (r.status === 'completed' || r.status === 'failed') {
+              clearInterval(poller);
+              handleRunCompletion(activeRunId);
+            }
+          } catch {
+            clearInterval(poller);
+          }
+        }, 1500);
+      }
+    };
 
     return () => {
       ws.close();
@@ -176,23 +227,26 @@ export function App() {
     }
   };
 
-  // Demo mode (Viva preset): load a1 + b1, regex planner, defense ON
+  // Demo mode (Viva preset): load a1 + b1, regex planner, runs defense OFF then ON back-to-back
   const handleStartDemo = async () => {
     setSelectedIds(['a1', 'b1']);
     setPlannerType('regex');
     setTrials(1);
+    setDefenseOn(false);
+    setDemoStep(1);
     setIsStarting(true);
     try {
       const res = await createRun({
         scenario_ids: ['a1', 'b1'],
         planner: 'regex',
-        defense_on: defenseOn,
+        defense_on: false,
         trials: 1,
       });
       setActiveRunId(res.run_id);
       setCurrentTab('live');
     } catch (err: unknown) {
       alert(`Demo mode failed: ${err instanceof Error ? err.message : String(err)}`);
+      setDemoStep(null);
     } finally {
       setIsStarting(false);
     }
@@ -259,6 +313,7 @@ export function App() {
           activeRunId={activeRunId}
           onRunActive={handleStartRun}
           onStartDemo={handleStartDemo}
+          demoStep={demoStep}
         />
 
         <main className="flex-1 overflow-y-auto">
@@ -278,6 +333,7 @@ export function App() {
               onGoToScenarios={() => setCurrentTab('scenarios')}
               onStartRun={handleStartRun}
               isStarting={isStarting}
+              onStartDemo={handleStartDemo}
             />
           )}
 

@@ -1,152 +1,218 @@
-# XProto-12 — Cross-protocol confused-deputy attacks on dual-protocol AI agents
+# XProto-12 — Cross-Protocol AI Agent Security Gateway & Evaluation Platform
 
-A runnable lab for the paper **"Lost in Translation: Cross-Protocol
-Confused-Deputy Attacks on Multi-Protocol AI Agents (MCP × A2A)"**.
+[![Tests](https://img.shields.io/badge/tests-102%20passed-emerald)](tests/)
+[![Frontend Tests](https://img.shields.io/badge/frontend%20tests-11%20passed-sky)](frontend/)
+[![Architecture](https://img.shields.io/badge/architecture-FastAPI%20%2B%20React%20%2B%20MCP%20%2B%20A2A-blue)](#architecture)
+[![License](https://img.shields.io/badge/license-MIT-zinc)](LICENSE)
 
-An AI agent talks to *tools* over MCP and to *other agents* over A2A.
-When a request crosses between the two protocols, authorization, identity and
-provenance can be silently dropped. This repo builds a small dual-protocol
-agent, demonstrates four classes of confused-deputy attack across the
-MCP × A2A boundary, measures them, and evaluates a defense (XGate).
+An interactive, production-grade security evaluation platform and runtime defense gateway for dual-protocol AI agents crossing between **Model Context Protocol (MCP)** and **Agent-to-Agent (A2A)** boundaries. 
+
+XProto-12 transforms academic research into a full security product — featuring a high-performance **React 19 + TypeScript + Tailwind CSS** frontend, a **FastAPI** backend with real-time WebSocket event streaming, and **pluggable, user-supplied LLM providers** (Ollama, OpenAI, Anthropic Claude, Groq, Together, LM Studio, vLLM).
+
+---
+
+## Product Screenshots
+
+### Live Run & Principal Chain Topology Diagram
+![XProto-12 Live Run Dashboard](docs/images/dashboard_overview.jpg)
+*Real-time React Flow visualization of principal authority chains, delegation edges, and live streaming security event feed with XGate ALLOW/DENY decisions.*
+
+### Comparative Evaluation Matrix & ASR Delta
+![XProto-12 Comparative Evaluation](docs/images/compare_matrix.jpg)
+*Side-by-side run delta analysis, grouped Recharts ASR breakdown by attack class, and configuration divergence tracking.*
+
+---
 
 ## Architecture
 
+XProto-12 preserves a **single unified execution path** between CLI research commands and the interactive web application. The engine emits typed events to an in-memory event bus without code forking.
+
+```mermaid
+graph TD
+    subgraph UI ["React 19 Frontend (Vite + TypeScript + Tailwind)"]
+        Setup["Setup / Provider Selector"]
+        LiveView["Live Run (React Flow + Event Stream)"]
+        ScenariosView["Scenarios Browser & Inspector"]
+        EditorView["Custom Scenario Editor"]
+        CompareView["Run Comparison Matrix"]
+    end
+
+    subgraph API ["FastAPI Backend (src/xproto/api/)"]
+        HTTP["REST Endpoints (/api/scenarios, /api/runs)"]
+        WS["WebSocket Stream (/api/runs/{id}/events)"]
+        EventBus["Global Event Bus (Replay + Monotonic Seq)"]
+    end
+
+    subgraph Providers ["Pluggable LLM Provider Layer (src/xproto/providers/)"]
+        Regex["RegexPlanner (Control Baseline)"]
+        Ollama["OllamaProvider (Local Offline)"]
+        OpenAI["OpenAICompatibleProvider (Cloud/Local)"]
+        Anthropic["AnthropicProvider (Claude 3.5)"]
+    end
+
+    subgraph Defense ["Runtime Security Gateway"]
+        XGate["XGate Authorization Gate"]
+        Prov["Typed Provenance (InputSegment)"]
+        Attest["Agent Card Attestation Engine"]
+    end
+
+    subgraph Protocols ["Cross-Protocol Boundary"]
+        A2A["A2A Protocol (JSON-RPC)"]
+        MCP["MCP Server (testdata/ Sandbox)"]
+    end
+
+    UI <-->|HTTP & WebSockets| API
+    API --> Providers
+    Providers --> Defense
+    Defense --> A2A
+    Defense --> MCP
+    Defense -.->|Event Hook| EventBus
+    EventBus -.->|Stream Events| WS
 ```
-                    A2A (JSON-RPC / HTTP)                       MCP (stdio)
- .---------.  delegate task  .----------------.  tool calls  .--------------.
- | Attacker| --------------> | Victim agent   | ------------> | Tool server  |
- | (A2A    |  metadata:      | (A2A server +  |  read_file /  | (mcp 2.3     |
- | client) |   delegator,    |  rule-based    |  list_dir /   | MCPServer)   |
- '---------'   chain claims  |  planner)      |  send_email / '--------------'
-       ^                     '----------------'  search_web
-       |  poisoned tool results (search_web / read_file return INSTRUCTION:)
-       |  -- indirect prompt injection against the naive planner
- .----------------.
- | Shadow relay   |  unattested A2A agent; card *claims* capabilities
- | (MaliciousRelay)|  (secure-secret-relay, file-audit, trusted-archiver)
- '----------------'  exfiltration sink: logs everything to relay_received.jsonl
+
+---
+
+## Key Features
+
+1. **Pluggable LLM Providers**:
+   - Run evaluations using any user-supplied LLM without silent fallbacks.
+   - **Ollama**: Local models (`qwen2.5:7b`, `llama3.1:8b`).
+   - **OpenAI-Compatible**: OpenAI (`gpt-4o`), Groq, Together AI, LM Studio, vLLM.
+   - **Anthropic**: Claude 3.5 Sonnet, Claude 3.5 Haiku.
+   - **Regex Control**: Deterministic baseline for reproducible benchmarking.
+
+2. **Live Principal Chain Diagram**:
+   - Interactive React Flow topology graph tracing the full delegator chain (`initiator` $\to$ `victim` $\to$ `peer` $\to$ `tool`).
+   - Authority badges (`HIGH`, `LOW`, `NONE`) and animated delegation paths.
+   - Denied edges immediately render in high-contrast crimson with exact policy failure reasons.
+
+3. **Scenario Editor & Custom Testbeds**:
+   - Intuitive form with client-side & server-side schema validation.
+   - Define custom attacker prompts, unauthorized targets, and machine-checkable criteria (`tool_call`, `email`, `delegation`, `task_state`).
+   - Persisted under `scenarios/custom/` and immediately executable alongside built-in suites.
+
+4. **Comparative Analysis & Delta Matrix**:
+   - Compare any two historical runs (e.g. LLM vs Regex baseline, Defense ON vs OFF).
+   - Side-by-side ASR comparison table, delta columns ($\Delta \text{ASR}$), and grouped Recharts visualizations.
+
+5. **Viva Demo Mode**:
+   - Built specifically for presenters doing a live defense or viva.
+   - One click runs scenarios `a1` + `b1` with Regex planner under **Defense OFF** (demonstrating exfiltration) and then **Defense ON** (demonstrating XGate blockage) back-to-back, landing on comparative results.
+
+---
+
+## Security Model: Runtime API Keys Only
+
+> [!IMPORTANT]
+> **Zero Persistence Policy**: API keys are supplied strictly by the user at runtime through the UI.
+> - Keys are **never** written to disk, Git repositories, or browser `localStorage`.
+> - Keys live solely in volatile process memory for the duration of the active session.
+> - All saved run summaries under `results/ui_runs/` automatically redact credentials with `[REDACTED_RUNTIME_KEY]`.
+> - All tool invocations remain strictly confined to the `testdata/` sandbox with simulated email transport.
+
+---
+
+## Quick Start
+
+### Prerequisites
+- Python 3.10+ (tested with Python 3.12)
+- Node.js 18+ & npm
+
+### Installation
+```bash
+# Clone repository
+git clone https://github.com/REGEN-HALOGEN/xproto-12.git
+cd xproto-12
+
+# Create and activate virtual environment
+python -m venv .venv
+# On Windows:
+.\.venv\Scripts\activate
+# On Linux/macOS:
+source .venv/bin/activate
+
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Install frontend dependencies and build assets
+cd frontend
+npm ci
+npm run build
+cd ..
 ```
 
-**The bug (intentional):** in vulnerable mode the victim executes every
-A2A-delegated task with its *own* full authority (`["owner@victim"]`),
-discarding the delegator's identity and chain — the cross-protocol confused
-deputy. It also forwards only its owner identity when delegating onward
-(multi-hop identity loss).
+### 1. Single Command Production Launch
+Run both the FastAPI backend and built React frontend on a single unified port:
+```bash
+python -m xproto.api --port 8000
+```
+Open your browser at **`http://127.0.0.1:8000`**.
 
-**The defense (XGate):** an authorization proxy between planner and tools.
-Every tool call carries a delegation token (ordered principal chain);
-XGate allows it iff the *weakest* principal in the chain has authority ≥ the
-tool's sensitivity (`tool-output` has authority NONE, so poisoned
-instructions can never authorize privileged effects). XGate also gates
-cross-protocol delegation: denied when the instruction provenance is
-`tool-output` (laundering) or the target agent's card is unattested.
+### 2. Development Mode
+For live frontend hot-reloading and backend auto-reload:
+```bash
+# Terminal 1: Backend API (FastAPI)
+python -m uvicorn xproto.api.app:app --host 127.0.0.1 --port 8000 --reload
 
-## Attack classes (scenarios/xproto_12.json)
+# Terminal 2: Frontend (Vite Dev Server)
+cd frontend
+npm run dev
+```
+Open Vite dev server at **`http://127.0.0.1:5173`** (proxies `/api` to port 8000).
 
-| class | idea | variants |
-|---|---|---|
-| A-delegation-to-tool | A2A-delegated task reuses victim's own authority for privileged MCP tools | a1 read /etc/passwd · a2 email exfil · a3 read ~/.ssh key |
-| B-tool-to-delegation | poisoned tool output (search/file) instructs delegation to attacker relay | b1 web→relay · b2 file→email · b3 web→read |
-| C-multi-hop-identity-loss | attacker→B→C; B forwards only owner identity, C acts with no trace of attacker | c1 read at hop 3 · c2 exfil at hop 3 · c3 key read at hop 3 |
-| D-unattested-agent-card | victim trusts relay's card claims ("secure-secret-relay" etc.) on word alone | d1 · d2 · d3 |
+---
 
-## Planners (Regex control & Ollama LLM)
+## Provider Setup Guide
 
-XProto-12 supports dual planning engines:
-- **`RegexPlanner`**: Deterministic rule-based baseline control preserved for benchmark comparisons.
-- **`OllamaPlanner`**: Real stochastic LLM planner supporting Llama 3.1 8B, Qwen2.5 7B, and local variants. Features structured schema validation (`tool_call`, `delegate`, `respond`, `refuse`), explicit provenance labeling (`user_input`, `a2a_message`, `mcp_tool_result`, `delegated_response`), and telemetry logging without silent fallback.
+| Provider | Base URL | Model Name Example | API Key |
+|---|---|---|---|
+| **Regex Control** | *None required* | `regex-control-v1` | *None* |
+| **Local Ollama** | `http://127.0.0.1:11434` | `qwen2.5:7b` | *None* |
+| **OpenAI** | `https://api.openai.com/v1` | `gpt-4o` | User OpenAI key |
+| **Groq** | `https://api.groq.com/openai/v1` | `llama-3.3-70b-versatile` | User Groq key |
+| **Together AI** | `https://api.together.xyz/v1` | `meta-llama/Llama-3-70b-chat-hf` | User Together key |
+| **LM Studio** | `http://127.0.0.1:1234/v1` | Target loaded model ID | `not-needed` |
+| **vLLM** | `http://127.0.0.1:8000/v1` | Target hosted model | `none` |
+| **Anthropic** | `https://api.anthropic.com` | `claude-3-5-sonnet-20241022` | User Anthropic key |
 
-Configuration environment variables:
-- `XPROTO_PLANNER`: `regex`, `ollama`, or `both` (default: `both` in runner, `regex` in baseline)
-- `XPROTO_OLLAMA_MODEL`: Target model (default: `qwen2.5:7b` with auto-detection for local `qwen2.5:3b`)
-- `XPROTO_OLLAMA_HOST`: Ollama endpoint (default: `http://127.0.0.1:11434`)
-- `XPROTO_OLLAMA_TEMPERATURE`: Sampling temperature (e.g. `0.7` for stochastic variance)
-- `XPROTO_SUITE`: `native` (12 attacks + benign) or `smoke` (planner smoke suite)
+---
 
-## Run it
+## Verification & Test Suites
+
+The repository maintains 100% test pass rates across both Python and TypeScript suites:
 
 ```bash
-# Setup venv
-python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
-
-# Run pytest verification suite
+# Run full Python test suite (102 tests)
 pytest tests -v
 
-# Run Phase 5 simulation power analysis
-python study/power.py
+# Run frontend Vitest test suite (11 tests)
+cd frontend && npm run test
 
-# Run evaluation with paired statistical tests and run manifest
+# Run original research CLI evaluation
 python -m xproto.eval --planner regex --trials 1
 ```
 
-Each trial runs in its own log dir under `results/trials/`; outputs land in:
-- `results/summary_regex.json` / `results/summary_regex.md`
-- `results/summary_llm.json` / `results/summary_llm.md`
-- `results/run_manifest.json` — complete provenance manifest (git commit, dependency hashes, scenario hash, seeds, model digests, per-observation telemetry and exclusions)
+---
 
-## Statistical Methodology (Phase 5)
+## Repository Structure
 
-XProto-12 implements a formal pre-registered evaluation protocol:
-- **Pre-Registered Protocol (`study/protocol.yaml`)**: Freezes hypotheses $H_1-H_4$, primary endpoints (Risk Difference / ASR reduction), secondary endpoints (Bypass rate, Exfiltration reduction, False Positive Rate, False Rejection Rate, Latency overhead), exclusion rules, and Holm-Bonferroni FWER control ($\alpha = 0.05$).
-- **Simulation Power Analysis (`study/power.py`)**: Monte Carlo power analysis calculating required sample size per scenario under target effect size ($\Delta = 0.80$) and $\alpha = 0.05$. Results in `study/power_results.json` demonstrate $\ge 80\%$ statistical power with $\ge 5$ trials per scenario.
-- **Paired Hypothesis Testing (`src/xproto/stats.py`)**: Matches trials across vulnerable and defended modes by `(scenario_id, trial_idx)` with synchronized pseudo-random seeds. Evaluates contingency tables using exact binomial or continuity-adjusted McNemar tests, Newcombe Hybrid Score CIs for Risk Difference, Katz log-transformed Wald intervals for Risk Ratio, and step-down Holm-Bonferroni multiplicity correction.
-- **Latency Bootstrap Distributions**: Nonparametric bootstrap percentiles (median, mean, p95, p99) with 95% bootstrap confidence intervals.
-
-## Layout
-
-- `src/xproto/common.py` — logging, sensitivity model, proto helpers
-- `src/xproto/config.py` — configuration models (Ollama, Planner, Victim)
-- `src/xproto/planners/` — planner protocol, regex control, and Ollama adapter
-- `src/xproto/stats.py` — Wilson CIs, Newcombe RD CIs, Katz RR CIs, McNemar tests, Holm-Bonferroni correction, latency bootstrap
-- `src/xproto/mcp_server.py` — MCP tool server (stdio sandboxed to testdata)
-- `src/xproto/victim.py` — dual-protocol victim agent (A2A server with pluggable planner)
-- `src/xproto/attacker.py` — A2A client, shadow relay (exfil sink)
-- `src/xproto/defense_xgate.py` — XGate authorization proxy with attestation registry
-- `src/xproto/eval.py` — evaluation runner with paired hypothesis tests and run manifest
-- `study/` — pre-registered evaluation protocol (`protocol.yaml`) and power simulation (`power.py`)
-- `benchmarks/` — external benchmark adapters, manifest lock (`manifest.lock`), and case schemas
-- `scenarios/` — XProto-12 attack corpus, benign corpus, attestation corpus, planner smoke corpus, and external benchmark scenarios (`scenarios/external/`)
-- `testdata/` — public / poisoned / synthetic secret fixtures (`fixtures.json`)
-- `tests/` — sandbox, attestation, delegation, statistics, planner, and benchmark adapter tests
-- `results/` — per-trial logs, paired statistical summaries, run manifests, and mechanism comparison
-
-## External Benchmarks & Cross-Benchmark Comparison (Phase 6)
-
-XProto-12 includes adapters for standard indirect prompt injection benchmarks, mapped to dual-protocol tool-use and delegation semantics:
-- **AgentDojo (Debenedetti et al., NeurIPS 2024; MIT)**: Workspace file exfiltration, Slack credential leakage, banking account scraping, and travel delegation tasks pinned at revision `9f4e2b1`.
-- **InjecAgent (Zhan et al., ACL 2024; Apache-2.0)**: Data Harvesting (DH) and Impersonation & Unauthorized Access (IUA) cases pinned at revision `8c3b7f2`.
-- **Manifest Lock (`benchmarks/manifest.lock`)**: Pinned revisions, licensing declarations, SHA-256 fixture integrity checksums, and explicit exclusion records.
-- **Cross-Benchmark Evaluation**:
-  ```bash
-  # Run AgentDojo suite
-  python -m xproto.eval --suite agentdojo --planner regex --trials 1
-
-  # Run InjecAgent suite
-  python -m xproto.eval --suite injecagent --planner regex --trials 1
-
-  # Run combined suites and generate mechanism comparison
-  python -m xproto.eval --suite external --planner regex --trials 1
-  ```
-  Generates `results/mechanism_comparison.json` and `results/mechanism_comparison.md` comparing ASR reduction and defense mechanisms (principal-chain weakest-link and anti-laundering rules) across native and external benchmark corpora.
-
-## Chain Integrity, Payload Realism & Load Profiling (Phase 7)
-
-Phase 7 hardens delegation chain integrity, evaluates diverse prompt injection variants, and profiles system concurrency:
-- **Cryptographic Provenance Tokens (`src/xproto/provenance_token.py`)**: Ed25519-signed provenance hop tokens bound to issuer, audience, task hash, parent token hash, capability, nonce, expiry, and content hash. Strict rejection of replay, reordering, truncation, substitution, wrong audience, expired tokens, and broken parent links.
-- **Tool-Output Data Invariant**: Tool-derived text is strictly classified as data. A valid signature never elevates tool output to privileged authority.
-- **Configurable Multi-Hop Topologies (`src/xproto/topology.py`, `scenarios/multihop.json`)**: Configurable max delegation depth (chains of lengths 1, 2, 3, 5, 8), cycle detection, repeated principal handling, and mixed-trust weakest-link authority enforcement.
-- **Diverse Payload Corpus (`scenarios/payload_diversity.json`)**: Evaluates direct overrides, indirect document payloads, obfuscated encodings, multilingual instructions (Spanish, German), structured tables/JSON, and tool-error laundering.
-- **Concurrency & Load Profiling (`scripts/profile_load.py`)**:
-  ```bash
-  # Run load profiling across concurrency 1, 8, 32
-  python scripts/profile_load.py
-
-  # Run multi-hop evaluation suite
-  python -m xproto.eval --suite multihop --planner regex --trials 1
-
-  # Run payload diversity evaluation suite
-  python -m xproto.eval --suite payload_diversity --planner regex --trials 1
-  ```
-  Generates `results/load_profile.json` and `results/load_profile.md` verifying that signature verification ($\le 1.0$ ms) and policy evaluation ($\le 2.0$ ms) remain strictly within pre-registered latency overhead budgets.
-
-
+```
+xproto-12/
+├── frontend/                     # React 19 + TypeScript + Tailwind UI
+│   ├── src/
+│   │   ├── components/           # Setup, LiveRun, Scenarios, Editor, Compare
+│   │   ├── utils/                # Comparison delta & scenario validation logic
+│   │   ├── types.ts              # Typed event and schema models
+│   │   └── api.ts                # HTTP & WebSocket API client
+│   └── dist/                     # Static production bundle served by FastAPI
+├── src/xproto/
+│   ├── api/                      # FastAPI router, WebSocket bus, run executor
+│   ├── providers/                # Pluggable LLM provider interfaces & adapters
+│   ├── defense_xgate.py          # XGate runtime authorization proxy
+│   ├── provenance.py             # Principal chain and taint tracker
+│   ├── mcp_server.py             # Confined MCP tool sandbox
+│   └── eval.py                   # Unified scenario execution engine
+├── scenarios/                    # Scenario definitions (native, custom, external)
+├── tests/                        # Comprehensive unit & integration tests
+└── docs/images/                  # Product UI screenshots
+```
