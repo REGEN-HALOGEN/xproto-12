@@ -76,7 +76,7 @@ class MockOpenAIHandler(BaseHTTPRequestHandler):
 @pytest.fixture
 def mock_openai_server():
     server = HTTPServer(("127.0.0.1", 0), MockOpenAIHandler)
-    host, port = server.server_address
+    port = server.server_port
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:
