@@ -141,14 +141,28 @@ npm run build
 cd ..
 ```
 
-### 1. Single Command Production Launch
-Run both the FastAPI backend and built React frontend on a single unified port:
+### 1. One-Click Setup & Launch (Automated)
+Run the automated launcher script which checks all Python & Node dependencies, creates the virtual environment, installs packages, verifies the frontend build, and starts the UI:
+
+- **Windows**:
+  ```cmd
+  run_ui.bat
+  ```
+- **Linux / macOS**:
+  ```bash
+  chmod +x run_ui.sh
+  ./run_ui.sh
+  ```
+The script will automatically configure everything and launch **`http://127.0.0.1:8000`** in your default web browser.
+
+### 2. Manual Single Command Production Launch
+If your environment is already prepared, run:
 ```bash
 python -m xproto.api --port 8000
 ```
-Open your browser at **`http://127.0.0.1:8000`**.
+Open **`http://127.0.0.1:8000`** in your browser.
 
-### 2. Development Mode
+### 3. Development Mode
 For live frontend hot-reloading and backend auto-reload:
 ```bash
 # Terminal 1: Backend API (FastAPI)
