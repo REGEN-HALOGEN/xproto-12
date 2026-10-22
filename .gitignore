@@ -2,6 +2,8 @@
 __pycache__/
 *.pyc
 results/trials/
+results/ui_runs/*.json
+!results/ui_runs/.gitkeep
 logs/
 *.jsonl
 .DS_Store

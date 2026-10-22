@@ -1,6 +1,7 @@
 # Frozen dependencies for XProto-12 reproducible research artifact
 a2a-sdk==1.2.2
 aiologic==0.17.1
+annotated-doc==0.0.5
 annotated-types==0.8.0
 anyio==4.15.1
 attrs==26.1.0
@@ -11,6 +12,7 @@ click==8.5.0
 colorama==0.4.6
 cryptography==50.0.2
 culsans==0.11.0
+fastapi==0.160.0
 google-api-core==2.42.0
 google-auth==2.62.0
 googleapis-common-protos==1.75.5

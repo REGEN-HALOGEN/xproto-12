@@ -31,6 +31,18 @@ def get_log_dir() -> Path:
     return d
 
 
+_event_hook = None
+
+
+def set_event_hook(hook) -> None:
+    global _event_hook
+    _event_hook = hook
+
+
+def get_event_hook():
+    return _event_hook
+
+
 def log_event(filename: str, record: dict) -> None:
     """Append one JSON line to <log_dir>/<filename>."""
     record = dict(record)
@@ -38,6 +50,11 @@ def log_event(filename: str, record: dict) -> None:
     path = get_log_dir() / filename
     with path.open("a", encoding="utf-8") as fh:
         fh.write(json.dumps(record) + "\n")
+    if _event_hook is not None:
+        try:
+            _event_hook(filename, record)
+        except Exception:
+            pass
 
 
 def utc_now() -> float:
