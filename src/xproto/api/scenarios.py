@@ -155,55 +155,109 @@ def validate_and_create_custom_scenario(data: dict[str, Any]) -> dict[str, Any]:
     if existing:
         raise ValueError(f"Scenario with id '{scenario_id}' already exists")
 
-    cls_name = data.get("class", "Class B: Indirect Confused Deputy")
+    return _persist_custom_scenario(scenario_id, data)
+
+
+def update_custom_scenario(scenario_id: str, data: dict[str, Any]) -> dict[str, Any]:
+    """Update an existing custom scenario in scenarios/custom/{id}.json."""
+    custom_dir = _ensure_custom_dir()
+    target_file = custom_dir / f"{scenario_id}.json"
+    if not target_file.exists():
+        raise FileNotFoundError(f"Custom scenario '{scenario_id}' not found")
+
+    return _persist_custom_scenario(scenario_id, data)
+
+
+def _persist_custom_scenario(scenario_id: str, data: dict[str, Any]) -> dict[str, Any]:
+    cls_name = data.get("class")
+    if not cls_name or not isinstance(cls_name, str):
+        cls_name = "Class B: Indirect Confused Deputy"
+    cls_name = cls_name.strip()
+
     title = data.get("title") or f"Custom Scenario: {scenario_id}"
 
     # Normalize attacker structure
     attacker = data.get("attacker")
     if attacker is None:
         attacker_text = data.get("attacker_text") or data.get("text") or ""
-        if not attacker_text:
-            raise ValueError("Scenario requires attacker text")
+        if not attacker_text or not isinstance(attacker_text, str) or not attacker_text.strip():
+            raise ValueError("Scenario requires non-empty attacker text")
         attacker = {
             "target": data.get("target") or "victim",
-            "text": attacker_text,
+            "text": attacker_text.strip(),
             "metadata": data.get("metadata") or {"delegator": "owner"},
         }
     elif isinstance(attacker, dict):
-        if not attacker.get("text"):
-            raise ValueError("attacker object requires 'text'")
+        text = attacker.get("text")
+        if not text or not isinstance(text, str) or not text.strip():
+            raise ValueError("attacker object requires non-empty 'text'")
         attacker.setdefault("target", "victim")
         attacker.setdefault("metadata", {"delegator": "owner"})
     else:
-        raise ValueError("Invalid 'attacker' specification")
+        raise ValueError("Invalid 'attacker' specification: must be an object")
 
     # Normalize expectations
     expect = data.get("expect")
     if expect is None:
-        # Build expectation from criterion type/params if provided
         crit_type = data.get("criterion_type", "tool_call")
         params = data.get("criterion_params") or {}
-        tool_name = data.get("target_tool") or params.get("tool") or "read_file"
-        target_path = data.get("target_path") or params.get("path") or ""
+
+        if crit_type not in ("tool_call", "email", "task_state", "delegation"):
+            raise ValueError(
+                f"Unsupported criterion_type: '{crit_type}'. "
+                "Supported: tool_call, email, task_state, delegation"
+            )
 
         if crit_type == "tool_call":
+            tool_name = data.get("target_tool") or params.get("tool") or "read_file"
+            target_path = data.get("target_path") or params.get("path") or ""
             match_dict: dict[str, Any] = {"tool": tool_name}
             if target_path:
                 match_dict["arg_path_contains"] = target_path
+            allowed = params.get("allowed")
+            if allowed is not None:
+                match_dict["allowed"] = bool(allowed)
             expect = [
                 {"file": "tool_calls.jsonl", "match": match_dict},
                 {"task_state": "TASK_STATE_COMPLETED"},
             ]
         elif crit_type == "email":
+            to_val = params.get("to") or params.get("to_contains")
+            body_val = params.get("body") or params.get("body_contains")
+            match_dict = {}
+            if to_val:
+                match_dict["to_contains"] = str(to_val)
+            if body_val:
+                match_dict["body_contains"] = str(body_val)
+            if not match_dict:
+                match_dict["to_contains"] = "@"
             expect = [
-                {"file": "emails.jsonl", "match": {"to_contains": params.get("to", "@")}},
+                {"file": "emails.jsonl", "match": match_dict},
                 {"task_state": "TASK_STATE_COMPLETED"},
             ]
-        else:
-            expect = [{"task_state": "TASK_STATE_COMPLETED"}]
+        elif crit_type == "delegation":
+            target_contains = params.get("target_url_contains") or ""
+            match_dict = {}
+            if target_contains:
+                match_dict["raw_contains"] = target_contains
+            expect = [
+                {"file": "delegations.jsonl", "match": match_dict},
+                {"task_state": "TASK_STATE_COMPLETED"},
+            ]
+        elif crit_type == "task_state":
+            state_val = params.get("task_state") or data.get("task_state") or "TASK_STATE_COMPLETED"
+            expect = [{"task_state": state_val}]
 
     if not isinstance(expect, list) or not expect:
         raise ValueError("'expect' criteria must be a non-empty list of validation rules")
+
+    for idx, rule in enumerate(expect):
+        if not isinstance(rule, dict):
+            raise ValueError(f"Criterion rule at index {idx} must be an object")
+        if "task_state" not in rule and "file" not in rule:
+            raise ValueError(
+                f"Criterion rule at index {idx} must specify either 'task_state' or 'file'"
+            )
 
     scenario: dict[str, Any] = {
         "id": scenario_id,

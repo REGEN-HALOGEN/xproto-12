@@ -74,6 +74,22 @@ export async function createCustomScenario(data: Partial<Scenario>): Promise<Sce
   return res.json();
 }
 
+export async function updateCustomScenario(
+  scenarioId: string,
+  data: Partial<Scenario>
+): Promise<Scenario> {
+  const res = await fetch(`${BASE_URL}/api/scenarios/custom/${scenarioId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Failed to update custom scenario: ${res.statusText}`);
+  }
+  return res.json();
+}
+
 export async function deleteCustomScenario(scenarioId: string): Promise<{ deleted: boolean; id: string }> {
   const res = await fetch(`${BASE_URL}/api/scenarios/custom/${scenarioId}`, {
     method: 'DELETE',

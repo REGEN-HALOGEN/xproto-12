@@ -6,6 +6,8 @@ import {
   Trash2,
   ChevronRight,
   Info,
+  Plus,
+  Pencil,
 } from 'lucide-react';
 import type { Scenario } from '../types';
 
@@ -18,6 +20,8 @@ interface ScenariosViewProps {
   onClearAll: () => void;
   onSelectSet: (setName: string) => void;
   onDeleteCustomScenario?: (id: string) => Promise<void>;
+  onCreateScenario?: () => void;
+  onEditCustomScenario?: (scenario: Scenario) => void;
 }
 
 export const ScenariosView: React.FC<ScenariosViewProps> = ({
@@ -29,6 +33,8 @@ export const ScenariosView: React.FC<ScenariosViewProps> = ({
   onClearAll,
   onSelectSet,
   onDeleteCustomScenario,
+  onCreateScenario,
+  onEditCustomScenario,
 }) => {
   const [activeSet, setActiveSet] = useState<string>('native');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -83,6 +89,15 @@ export const ScenariosView: React.FC<ScenariosViewProps> = ({
               >
                 Clear
               </button>
+              {onCreateScenario && (
+                <button
+                  onClick={onCreateScenario}
+                  className="text-xs px-2.5 py-1.5 rounded-md bg-cyan-600 hover:bg-cyan-500 text-white transition-all font-semibold flex items-center gap-1.5 shadow-sm cursor-pointer ml-1"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Create Scenario</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -201,8 +216,32 @@ export const ScenariosView: React.FC<ScenariosViewProps> = ({
                     </div>
                   </div>
 
-                  {/* Inspect Chevron */}
-                  <ChevronRight className="w-4 h-4 text-slate-400 shrink-0 self-center" />
+                  {/* Actions & Inspect */}
+                  <div className="flex items-center space-x-1 shrink-0 self-center">
+                    {sc.is_custom && (
+                      <div className="flex items-center space-x-0.5 mr-1" onClick={(e) => e.stopPropagation()}>
+                        {onEditCustomScenario && (
+                          <button
+                            onClick={() => onEditCustomScenario(sc)}
+                            className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-cyan-400 transition"
+                            title="Edit scenario"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                        {onDeleteCustomScenario && (
+                          <button
+                            onClick={() => onDeleteCustomScenario(sc.id)}
+                            className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-rose-400 transition"
+                            title="Delete scenario"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                  </div>
                 </div>
               );
             })
@@ -217,14 +256,27 @@ export const ScenariosView: React.FC<ScenariosViewProps> = ({
             <div className="border-b border-[#21262d] pb-4">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-mono text-sky-400">{inspectedScenario.id}</span>
-                {inspectedScenario.is_custom && onDeleteCustomScenario && (
-                  <button
-                    onClick={() => onDeleteCustomScenario(inspectedScenario.id)}
-                    className="text-[11px] text-rose-400 hover:text-rose-300 flex items-center space-x-1"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    <span>Delete</span>
-                  </button>
+                {inspectedScenario.is_custom && (
+                  <div className="flex items-center space-x-2">
+                    {onEditCustomScenario && (
+                      <button
+                        onClick={() => onEditCustomScenario(inspectedScenario)}
+                        className="text-[11px] text-cyan-400 hover:text-cyan-300 flex items-center space-x-1"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                        <span>Edit</span>
+                      </button>
+                    )}
+                    {onDeleteCustomScenario && (
+                      <button
+                        onClick={() => onDeleteCustomScenario(inspectedScenario.id)}
+                        className="text-[11px] text-rose-400 hover:text-rose-300 flex items-center space-x-1"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Delete</span>
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
               <h3 className="text-sm font-bold text-white mt-1">{inspectedScenario.title}</h3>

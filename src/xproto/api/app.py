@@ -17,6 +17,7 @@ from xproto.api.runs import get_run, list_runs, start_run
 from xproto.api.scenarios import (
     delete_custom_scenario,
     get_all_scenario_sets,
+    update_custom_scenario,
     validate_and_create_custom_scenario,
 )
 from xproto.common import PROJECT_ROOT
@@ -58,6 +59,17 @@ def create_app() -> FastAPI:
         try:
             scenario = validate_and_create_custom_scenario(payload)
             return scenario
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.put("/api/scenarios/custom/{scenario_id}")
+    async def update_custom(scenario_id: str, payload: dict[str, Any]):
+        """Update an existing custom scenario."""
+        try:
+            scenario = update_custom_scenario(scenario_id, payload)
+            return scenario
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 

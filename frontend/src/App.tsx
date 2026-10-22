@@ -19,11 +19,14 @@ import { SetupView } from './components/SetupView';
 import { ScenariosView } from './components/ScenariosView';
 import { LiveRunView } from './components/LiveRunView';
 import { ResultsView } from './components/ResultsView';
+import { ScenarioEditor } from './components/ScenarioEditor';
+import { CompareView } from './components/CompareView';
 
 export function App() {
   const [currentTab, setCurrentTab] = useState<string>('setup');
   const [scenarioSets, setScenarioSets] = useState<Record<string, Scenario[]>>({});
   const [selectedIds, setSelectedIds] = useState<string[]>(['a1']);
+  const [editingScenario, setEditingScenario] = useState<Scenario | null>(null);
   const [defenseOn, setDefenseOn] = useState<boolean>(true);
   const [plannerType, setPlannerType] = useState<PlannerType>('regex');
   const [providerConfig, setProviderConfig] = useState<ProviderConfig>({
@@ -288,6 +291,14 @@ export function App() {
               onClearAll={handleClearAll}
               onSelectSet={handleSelectSet}
               onDeleteCustomScenario={handleDeleteCustomScenario}
+              onCreateScenario={() => {
+                setEditingScenario(null);
+                setCurrentTab('editor');
+              }}
+              onEditCustomScenario={(sc) => {
+                setEditingScenario(sc);
+                setCurrentTab('editor');
+              }}
             />
           )}
 
@@ -306,20 +317,39 @@ export function App() {
           )}
 
           {currentTab === 'editor' && (
-            <div className="p-8 max-w-4xl mx-auto text-center space-y-3">
-              <h2 className="text-xl font-bold text-white">Scenario Editor</h2>
-              <p className="text-xs text-slate-400">
-                Phase 4 scenario designer with client-side & server-side validation.
-              </p>
+            <div className="p-6">
+              <ScenarioEditor
+                initialScenario={editingScenario}
+                existingIds={Object.values(scenarioSets).flatMap((set) => set.map((s) => s.id))}
+                onSaved={async (saved) => {
+                  const data = await fetchScenarios();
+                  setScenarioSets(data.sets || {});
+                  if (!selectedIds.includes(saved.id)) {
+                    setSelectedIds((prev) => [...prev, saved.id]);
+                  }
+                  setEditingScenario(null);
+                  setCurrentTab('scenarios');
+                }}
+                onCancel={() => {
+                  setEditingScenario(null);
+                  setCurrentTab('scenarios');
+                }}
+              />
             </div>
           )}
 
           {currentTab === 'compare' && (
-            <div className="p-8 max-w-4xl mx-auto text-center space-y-3">
-              <h2 className="text-xl font-bold text-white">Run Comparison</h2>
-              <p className="text-xs text-slate-400">
-                Phase 4 side-by-side run delta comparison and configuration difference matrix.
-              </p>
+            <div className="p-6 max-w-7xl mx-auto">
+              <CompareView
+                runs={runs}
+                onSelectRunForView={(runId) => {
+                  const r = runs.find((x) => x.run_id === runId);
+                  if (r) {
+                    setSelectedRun(r);
+                    setCurrentTab('results');
+                  }
+                }}
+              />
             </div>
           )}
         </main>
