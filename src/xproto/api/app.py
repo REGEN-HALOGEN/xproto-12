@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +12,36 @@ import httpx
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+
+# Silence spurious WinError 10054 ConnectionResetError on Windows when clients disconnect abruptly
+if sys.platform == "win32":
+    try:
+        import asyncio.proactor_events
+
+        _orig_call_connection_lost = (
+            asyncio.proactor_events._ProactorBasePipeTransport._call_connection_lost
+        )
+
+        def _safe_call_connection_lost(self, exc):
+            try:
+                _orig_call_connection_lost(self, exc)
+            except (ConnectionResetError, OSError):
+                try:
+                    if hasattr(self, "_sock") and self._sock is not None:
+                        self._sock.close()
+                        self._sock = None
+                    if hasattr(self, "_server") and self._server is not None:
+                        self._server._detach()
+                        self._server = None
+                    self._called_connection_lost = True
+                except Exception:
+                    pass
+
+        asyncio.proactor_events._ProactorBasePipeTransport._call_connection_lost = (
+            _safe_call_connection_lost
+        )
+    except Exception:
+        pass
 
 from xproto.api.events import GLOBAL_EVENT_BUS
 from xproto.api.runs import get_run, list_runs, start_run

@@ -310,3 +310,55 @@ async def test_websocket_streaming_event_sequence():
             assert "chain_authority" in xgate_ev["data"]
             assert "required_authority" in xgate_ev["data"]
             assert "reason" in xgate_ev["data"]
+
+
+def test_uvicorn_websocket_protocol_supported():
+    """Verify that uvicorn detects a valid WebSocket protocol handler for the app."""
+    import uvicorn.config
+
+    cfg = uvicorn.config.Config("xproto.api.app:app")
+    cfg.load()
+    assert cfg.ws_protocol_class is not None, (
+        "Uvicorn did not detect a supported WebSocket library. "
+        "websockets must be installed to support real-time streaming."
+    )
+
+
+def test_windows_proactor_connection_reset_safe():
+    """Verify that ProactorBasePipeTransport._call_connection_lost safely handles ConnectionResetError."""
+    import sys
+
+    if sys.platform != "win32":
+        pytest.skip("Windows-specific Proactor test")
+
+    import asyncio.proactor_events
+
+    class DummyProtocol:
+        def connection_made(self, transport):
+            pass
+
+        def connection_lost(self, exc):
+            pass
+
+    class DummySocket:
+        def fileno(self):
+            return 1
+
+        def shutdown(self, how):
+            raise ConnectionResetError(
+                10054, "An existing connection was forcibly closed by the remote host"
+            )
+
+        def close(self):
+            pass
+
+    loop = asyncio.new_event_loop()
+    try:
+        transport = asyncio.proactor_events._ProactorBasePipeTransport(
+            loop, DummySocket(), DummyProtocol(), None
+        )
+        # Calling _call_connection_lost must not raise ConnectionResetError
+        transport._call_connection_lost(None)
+        assert transport._called_connection_lost is True
+    finally:
+        loop.close()

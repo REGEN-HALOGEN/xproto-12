@@ -46,6 +46,17 @@ def main():
         flush=True,
     )
 
+    try:
+        import websockets  # noqa: F401
+    except ImportError:
+        print(
+            "[XProto-12] Warning: 'websockets' library is not installed.\n"
+            "            Real-time event streaming over WebSocket requires websockets.\n"
+            "            Install via: pip install 'websockets>=13.0'",
+            file=sys.stderr,
+            flush=True,
+        )
+
     uvicorn.run("xproto.api.app:app", host=args.host, port=args.port, log_level="info")
 
 
